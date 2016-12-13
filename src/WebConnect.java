@@ -7,9 +7,6 @@ import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Created by PC on 12/13/2016.
- */
 public class WebConnect {
     public void getWeb() throws IOException {
         String webLinks = "";
