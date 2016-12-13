@@ -25,7 +25,6 @@ public class WebConnect {
                     webLinks += ("http://www.javl10.com/cn" + link.attr("href").substring(1) + "\n");
                 }
             }
-            System.out.println("==================");
         }
         System.out.print(webLinks);
 
