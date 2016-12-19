@@ -1,6 +1,7 @@
 package dto;
 
-import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.List;
 
 public class LibWebInfo {
@@ -16,7 +17,9 @@ public class LibWebInfo {
 
     private List<String> categoryList;
 
-    private String actor;
+    private List<String> actorList;
+
+    private String imageUrl;
 
     public String getNumber() {
         return number;
@@ -66,12 +69,20 @@ public class LibWebInfo {
         this.categoryList = categoryList;
     }
 
-    public String getActor() {
-        return actor;
+    public String getImageUrl() {
+        return imageUrl;
     }
 
-    public void setActor(String actor) {
-        this.actor = actor;
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public List<String> getActorList() {
+        return actorList;
+    }
+
+    public void setActorList(List<String> actorList) {
+        this.actorList = actorList;
     }
 
     @Override
@@ -79,15 +90,16 @@ public class LibWebInfo {
         String str = "";
 
         Class clazz = this.getClass();
-        Field[] fields = clazz.getDeclaredFields();
+        Method[] methods = clazz.getMethods();
         try {
-            for (Field field : fields) {
-                field.setAccessible(true);
-
-                Object obj = field.get(this);
-                str += field.getName() + "\t" + obj + "\n";
-
+            for (Method method : methods) {
+                if(method.getName().startsWith("get") && !"getClass".equals(method.getName())) {
+                    Object obj = method.invoke(this);
+                    str += method.getName().substring(3) + "\t" + obj + "\n";
+                }
             }
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }

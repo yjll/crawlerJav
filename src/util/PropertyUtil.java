@@ -1,17 +1,17 @@
 package util;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 
-/**
- * Created by PC on 12/17/2016.
- */
 public class PropertyUtil {
     public static String getProperty(String key) {
         Properties properties = new Properties();
         String value = "";
         try {
-            properties.load(PropertyUtil.class.getResourceAsStream("/crawlerJav.ini"));
+            InputStream in =PropertyUtil.class.getResourceAsStream("/crawlerJav.ini");
+            properties.load(in);
+            in.close();
             value = properties.getProperty(key);
         } catch (IOException e) {
             e.printStackTrace();

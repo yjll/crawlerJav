@@ -29,11 +29,8 @@ public class LibWebConnect {
             Document doc = Jsoup.connect(bestRated + i).userAgent("Mozilla").timeout(5 * 1000).get();
             // 获取所有链接
             Elements links = doc.select("a[href]");
-            Pattern linkPattern = Pattern.compile(".*v=.*");
-            Matcher linkMatcher;
             for (Element link : links) {
-                linkMatcher = linkPattern.matcher(link.attr("href"));
-                if (linkMatcher.matches()) {
+                if (Pattern.matches(".*v=.*", link.attr("href"))) {
                     // 真实地址
                     webUrlList.add(libUrl + link.attr("href").substring(2) + "\n");
                 }
@@ -44,6 +41,7 @@ public class LibWebConnect {
 
     /**
      * 解析网页
+     *
      * @param libUrl
      * @return
      */
@@ -52,13 +50,15 @@ public class LibWebConnect {
         try {
             Document doc = Jsoup.connect(libUrl).userAgent("Mozilla").timeout(5 * 1000).get();
             libWebInfo.setNumber(doc.title().trim().split(" ")[0]);
-            libWebInfo.setTile(doc.title());
-            // 使用者评价
+            libWebInfo.setTile((doc.title().replace(PropertyUtil.getProperty("LIBNAME"), "").trim()));
+            // 评分
             String rated = doc.select("span.score").get(0).text();
-            rated.replace("(", "");
-            rated.replace(")", "");
-            libWebInfo.setRated(rated);
-
+            Pattern pattern = Pattern.compile("\\d*\\.\\d*");
+            Matcher matcher = pattern.matcher(rated);
+            if (matcher.find()) {
+                libWebInfo.setRated(matcher.group());
+            }
+            // 时长
             libWebInfo.setDuration(doc.select("span.text").text());
 
             Elements texts = doc.select("td.text");
@@ -74,11 +74,26 @@ public class LibWebConnect {
                 if ("category tag".equals(as.get(i).attr("rel"))) {
                     categoryList.add(as.get(i).text());
                 }
-                if ("tag".equals(as.get(as.size() - 1).attr("rel"))) {
-                    libWebInfo.setActor(as.get(as.size() - 1).text());
-                }
             }
             libWebInfo.setCategoryList(categoryList);
+
+            // 演员
+            List<String> actorList = new ArrayList<>();
+            Elements actors = doc.select("a[href]");
+            for (Element actor : actors) {
+                if (actor.attr("href").startsWith("vl_star")) {
+                    actorList.add(actor.text());
+                }
+            }
+            libWebInfo.setActorList(actorList);
+
+            // 获取图片链接地址
+            Elements imageUrls = doc.select("img[id]");
+            for (Element imageUrl : imageUrls) {
+                if ("video_jacket_img".equals(imageUrl.attr("id"))) {
+                    libWebInfo.setImageUrl(imageUrl.attr("src"));
+                }
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
