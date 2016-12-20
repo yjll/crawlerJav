@@ -9,7 +9,9 @@ import util.PropertyUtil;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -17,12 +19,12 @@ public class LibWebConnect {
     /**
      * 获取每个网页链接
      *
-     * @return urlList
+     * @return webUrlSet
      * @throws IOException
      */
-    public List<String> getLibUrlList() throws IOException {
-        List<String> webUrlList = new ArrayList<>();
-        String libUrl = PropertyUtil.getProperty("LIBURL");
+    public Set<String> getLibUrlSet() throws IOException {
+        Set<String> webUrlSet = new HashSet<>();
+        String libUrl = PropertyUtil.getProperty("LIB_URL");
         // 目标地址
         String bestRated = libUrl + PropertyUtil.getProperty("BEST_RATED");
         for (int i = 1; i <= 1; i++) {
@@ -32,11 +34,11 @@ public class LibWebConnect {
             for (Element link : links) {
                 if (Pattern.matches(".*v=.*", link.attr("href"))) {
                     // 真实地址
-                    webUrlList.add(libUrl + link.attr("href").substring(2) + "\n");
+                    webUrlSet.add(libUrl + link.attr("href").substring(2) + "\n");
                 }
             }
         }
-        return webUrlList;
+        return webUrlSet;
     }
 
     /**
@@ -50,7 +52,7 @@ public class LibWebConnect {
         try {
             Document doc = Jsoup.connect(libUrl).userAgent("Mozilla").timeout(5 * 1000).get();
             libWebInfo.setNumber(doc.title().trim().split(" ")[0]);
-            libWebInfo.setTile((doc.title().replace(PropertyUtil.getProperty("LIBNAME"), "").trim()));
+            libWebInfo.setTile((doc.title().replace(PropertyUtil.getProperty("LIB_NAME"), "").trim()));
             // 评分
             String rated = doc.select("span.score").get(0).text();
             Pattern pattern = Pattern.compile("\\d*\\.\\d*");
@@ -70,9 +72,9 @@ public class LibWebConnect {
             // 类别
             List<String> categoryList = new ArrayList<>();
             Elements as = doc.select("a[rel]");
-            for (int i = 0; i < as.size(); i++) {
-                if ("category tag".equals(as.get(i).attr("rel"))) {
-                    categoryList.add(as.get(i).text());
+            for (Element a : as) {
+                if ("category tag".equals(a.attr("rel"))) {
+                    categoryList.add(a.text());
                 }
             }
             libWebInfo.setCategoryList(categoryList);

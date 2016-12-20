@@ -1,13 +1,15 @@
 package util;
 
-import java.io.BufferedOutputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 
 public class CommonUtil {
+    /**
+     * 通过指定URL下载图片
+     *
+     * @param urlStr
+     */
     public static void dowsloadImage(String urlStr) {
         try {
             URL url = new URL(urlStr);
@@ -27,6 +29,42 @@ public class CommonUtil {
         } catch (java.io.IOException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * 将对象保存到本地
+     *
+     * @param obj
+     * @param path
+     */
+    public static void saveObject(Serializable obj, String path) {
+        try {
+            ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(PropertyUtil.getProperty(path)));
+            out.writeObject(obj);
+            out.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 反序列化
+     *
+     * @param path
+     * @return
+     */
+    public static Object getObject(String path) {
+        Object obj = null;
+        try {
+            ObjectInputStream in = new ObjectInputStream(new FileInputStream(PropertyUtil.getProperty(path)));
+            obj = in.readObject();
+            in.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return obj;
     }
 
 }
