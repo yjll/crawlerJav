@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 public class LibWebInfo {
+    private String url;
     private String number;
 
     private String tile;
@@ -20,6 +21,14 @@ public class LibWebInfo {
     private List<String> actorList;
 
     private String imageUrl;
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
 
     public String getNumber() {
         return number;
@@ -93,7 +102,7 @@ public class LibWebInfo {
         Method[] methods = clazz.getMethods();
         try {
             for (Method method : methods) {
-                if(method.getName().startsWith("get") && !"getClass".equals(method.getName())) {
+                if (method.getName().startsWith("get") && !"getClass".equals(method.getName())) {
                     Object obj = method.invoke(this);
                     str += method.getName().substring(3) + "\t" + obj + "\n";
                 }

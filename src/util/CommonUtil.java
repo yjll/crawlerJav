@@ -39,7 +39,7 @@ public class CommonUtil {
      */
     public static void saveObject(Serializable obj, String path) {
         try {
-            ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(PropertyUtil.getProperty(path)));
+            ObjectOutputStream out = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(PropertyUtil.getProperty(path))));
             out.writeObject(obj);
             out.close();
         } catch (IOException e) {
@@ -56,7 +56,7 @@ public class CommonUtil {
     public static Object getObject(String path) {
         Object obj = null;
         try {
-            ObjectInputStream in = new ObjectInputStream(new FileInputStream(PropertyUtil.getProperty(path)));
+            ObjectInputStream in = new ObjectInputStream(new BufferedInputStream(new FileInputStream(PropertyUtil.getProperty(path))));
             obj = in.readObject();
             in.close();
         } catch (IOException e) {

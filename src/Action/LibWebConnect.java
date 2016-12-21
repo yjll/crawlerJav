@@ -5,13 +5,13 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import util.CommonUtil;
 import util.PropertyUtil;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,21 +22,25 @@ public class LibWebConnect {
      * @return webUrlSet
      * @throws IOException
      */
-    public Set<String> getLibUrlSet() throws IOException {
+    public static Set<String> getLibUrlSet() {
         Set<String> webUrlSet = new HashSet<>();
         String libUrl = PropertyUtil.getProperty("LIB_URL");
         // 目标地址
         String bestRated = libUrl + PropertyUtil.getProperty("BEST_RATED");
-        for (int i = 1; i <= 1; i++) {
-            Document doc = Jsoup.connect(bestRated + i).userAgent("Mozilla").timeout(5 * 1000).get();
-            // 获取所有链接
-            Elements links = doc.select("a[href]");
-            for (Element link : links) {
-                if (Pattern.matches(".*v=.*", link.attr("href"))) {
-                    // 真实地址
-                    webUrlSet.add(libUrl + link.attr("href").substring(2) + "\n");
+        try {
+            for (int i = 1; i <= 1; i++) {
+                Document doc = Jsoup.connect(bestRated + i).userAgent("Mozilla").timeout(5 * 1000).get();
+                // 获取所有链接
+                Elements links = doc.select("a[href]");
+                for (Element link : links) {
+                    if (Pattern.matches(".*v=.*", link.attr("href"))) {
+                        // 真实地址
+                        webUrlSet.add(libUrl + link.attr("href").substring(2));
+                    }
                 }
             }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return webUrlSet;
     }
@@ -47,10 +51,12 @@ public class LibWebConnect {
      * @param libUrl
      * @return
      */
-    public LibWebInfo analysis(String libUrl) {
-        LibWebInfo libWebInfo = new LibWebInfo();
+    public static LibWebInfo analysis(String libUrl) {
+        LibWebInfo libWebInfo = null ;
         try {
             Document doc = Jsoup.connect(libUrl).userAgent("Mozilla").timeout(5 * 1000).get();
+            libWebInfo = new LibWebInfo();
+            libWebInfo.setUrl(libUrl);
             libWebInfo.setNumber(doc.title().trim().split(" ")[0]);
             libWebInfo.setTile((doc.title().replace(PropertyUtil.getProperty("LIB_NAME"), "").trim()));
             // 评分
@@ -101,4 +107,43 @@ public class LibWebConnect {
         }
         return libWebInfo;
     }
+
+    /**
+     * 启用多线程爬取网页信息
+     * @param libUrlSet
+     * @return
+     */
+    public static Set<LibWebInfo> getLibWebInfoSet(Set<String> libUrlSet){
+        Set<String> localLibUrlSet = (Set<String>) CommonUtil.getObject("LIB_URL_SET_PATH");
+        Set<LibWebInfo> libWebInfoSet = Collections.synchronizedSet(new HashSet<>());
+        // 线程上限4
+        ExecutorService fixedThreadPool = Executors.newFixedThreadPool(4);
+        // 遍历链接抓取信息
+        for (String libUrl : localLibUrlSet) {
+            fixedThreadPool.execute(new Runnable() {
+                public void run() {
+                    System.out.println(libUrl);
+                    LibWebInfo libWebInfo = analysis(libUrl);
+                    if (libWebInfo != null) {
+                        libWebInfoSet.add(libWebInfo);
+                    }
+                }
+            });
+        }
+        // 线程池关闭
+        fixedThreadPool.shutdown();
+        while (true) {
+            // 确认线程结束
+            if (fixedThreadPool.isTerminated()) {
+                break;
+            }
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        return libWebInfoSet;
+    }
+
 }
