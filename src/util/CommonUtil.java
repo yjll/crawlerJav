@@ -37,7 +37,7 @@ public class CommonUtil {
      * @param obj
      * @param path
      */
-    public static void saveObject(Serializable obj, String path) {
+    public static void saveObject(Object obj, String path) {
         try {
             ObjectOutputStream out = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(PropertyUtil.getProperty(path))));
             out.writeObject(obj);

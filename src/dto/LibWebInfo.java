@@ -1,10 +1,11 @@
 package dto;
 
+import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 
-public class LibWebInfo {
+public class LibWebInfo implements Serializable {
     private String url;
     private String number;
 

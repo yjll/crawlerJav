@@ -9,7 +9,7 @@ import java.util.Set;
 
 public class LibMain {
     public static void main(String[] args) {
-        // 获取链接列表
+        // 从Web获取链接列表
         Set<String> webLibUrlSet = LibWebConnect.getLibUrlSet();
         // 本地链接列表
         Set<String> localLibUrlSet = new HashSet<>();
@@ -27,12 +27,15 @@ public class LibMain {
                 }
             }
         }
+        System.out.println("The lengeth of newLibUrlSet is " + newLibUrlSet.size());
         // 获取页面信息
         Set<LibWebInfo> libWebInfoSet = LibWebConnect.getLibWebInfoSet(newLibUrlSet);
-        for(LibWebInfo libWebInfo : libWebInfoSet){
+        for (LibWebInfo libWebInfo : libWebInfoSet) {
             // 已获取到的页面的地址
             localLibUrlSet.add(libWebInfo.getUrl());
         }
-        CommonUtil.saveObject((HashSet)localLibUrlSet,"LIB_URL_SET_PATH");
+        CommonUtil.saveObject(localLibUrlSet, "LIB_URL_SET_PATH");
+        CommonUtil.saveObject(libWebInfoSet, "LIB_WEB_INFO_SET_PATH");
+        System.out.println("===End===");
     }
 }

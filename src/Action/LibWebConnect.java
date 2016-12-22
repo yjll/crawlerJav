@@ -5,7 +5,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import util.CommonUtil;
 import util.PropertyUtil;
 
 import java.io.IOException;
@@ -28,7 +27,7 @@ public class LibWebConnect {
         // 目标地址
         String bestRated = libUrl + PropertyUtil.getProperty("BEST_RATED");
         try {
-            for (int i = 1; i <= 1; i++) {
+            for (int i = 1; i <= 25; i++) {
                 Document doc = Jsoup.connect(bestRated + i).userAgent("Mozilla").timeout(5 * 1000).get();
                 // 获取所有链接
                 Elements links = doc.select("a[href]");
@@ -103,6 +102,7 @@ public class LibWebConnect {
                 }
             }
         } catch (IOException e) {
+            System.out.println(libUrl + " Time Out");
             e.printStackTrace();
         }
         return libWebInfo;
@@ -114,15 +114,13 @@ public class LibWebConnect {
      * @return
      */
     public static Set<LibWebInfo> getLibWebInfoSet(Set<String> libUrlSet){
-        Set<String> localLibUrlSet = (Set<String>) CommonUtil.getObject("LIB_URL_SET_PATH");
         Set<LibWebInfo> libWebInfoSet = Collections.synchronizedSet(new HashSet<>());
         // 线程上限4
         ExecutorService fixedThreadPool = Executors.newFixedThreadPool(4);
         // 遍历链接抓取信息
-        for (String libUrl : localLibUrlSet) {
+        for (String libUrl : libUrlSet) {
             fixedThreadPool.execute(new Runnable() {
                 public void run() {
-                    System.out.println(libUrl);
                     LibWebInfo libWebInfo = analysis(libUrl);
                     if (libWebInfo != null) {
                         libWebInfoSet.add(libWebInfo);
