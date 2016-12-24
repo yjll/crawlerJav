@@ -9,7 +9,7 @@ import java.util.Properties;
 public class PropertyUtil {
     public static String getProperty(String key) {
         Properties properties = new Properties();
-        String value = "";
+        String value = null;
         try {
             InputStream in = new FileInputStream("/IDEAProject/crawlerJavDate/crawlerJav.ini");
             properties.load(in);

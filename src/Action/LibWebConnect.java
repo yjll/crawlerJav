@@ -5,8 +5,10 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import util.CommonUtil;
 import util.PropertyUtil;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -15,6 +17,17 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class LibWebConnect {
+    // 网址
+    public static String libUrl = PropertyUtil.getProperty("LIB_URL");
+    // 根据评分排名URL
+    public static String bestRated = libUrl + PropertyUtil.getProperty("BEST_RATED");
+    // 网站英文名称
+    public static String libName = PropertyUtil.getProperty("LIB_NAME");
+    // 本地图片root目录
+    public static String image_root_path = PropertyUtil.getProperty("IMAGE_ROOT_PATH");
+    // 收集超时链接
+    public static Set<String> failLibSet = new HashSet<>();
+
     /**
      * 获取每个网页链接
      *
@@ -23,11 +36,8 @@ public class LibWebConnect {
      */
     public static Set<String> getLibUrlSet() {
         Set<String> webUrlSet = new HashSet<>();
-        String libUrl = PropertyUtil.getProperty("LIB_URL");
-        // 目标地址
-        String bestRated = libUrl + PropertyUtil.getProperty("BEST_RATED");
         try {
-            for (int i = 1; i <= 25; i++) {
+            for (int i = 1; i <= 1; i++) {
                 Document doc = Jsoup.connect(bestRated + i).userAgent("Mozilla").timeout(5 * 1000).get();
                 // 获取所有链接
                 Elements links = doc.select("a[href]");
@@ -51,13 +61,28 @@ public class LibWebConnect {
      * @return
      */
     public static LibWebInfo analysis(String libUrl) {
-        LibWebInfo libWebInfo = null ;
+        LibWebInfo libWebInfo = new LibWebInfo();
         try {
             Document doc = Jsoup.connect(libUrl).userAgent("Mozilla").timeout(5 * 1000).get();
-            libWebInfo = new LibWebInfo();
             libWebInfo.setUrl(libUrl);
             libWebInfo.setNumber(doc.title().trim().split(" ")[0]);
-            libWebInfo.setTile((doc.title().replace(PropertyUtil.getProperty("LIB_NAME"), "").trim()));
+            // 获取图片链接地址
+            Elements imageUrls = doc.select("img[id]");
+            for (Element imageUrl : imageUrls) {
+                if ("video_jacket_img".equals(imageUrl.attr("id"))) {
+                    libWebInfo.setImageUrl(imageUrl.attr("src"));
+                }
+            }
+            // 将图片保存到本地
+            File directory = new File(image_root_path + libWebInfo.getNumber());
+            if (!directory.exists()) {
+                directory.mkdir();
+            }
+            File imageFile = new File(image_root_path + libWebInfo.getNumber() + "/" + libWebInfo.getNumber() + ".jpg");
+            CommonUtil.downloadImage(libWebInfo.getImageUrl(), imageFile.toString());
+
+
+            libWebInfo.setTile((doc.title().replace(libName, "").trim()));
             // 评分
             String rated = doc.select("span.score").get(0).text();
             Pattern pattern = Pattern.compile("\\d*\\.\\d*");
@@ -94,15 +119,8 @@ public class LibWebConnect {
             }
             libWebInfo.setActorList(actorList);
 
-            // 获取图片链接地址
-            Elements imageUrls = doc.select("img[id]");
-            for (Element imageUrl : imageUrls) {
-                if ("video_jacket_img".equals(imageUrl.attr("id"))) {
-                    libWebInfo.setImageUrl(imageUrl.attr("src"));
-                }
-            }
         } catch (IOException e) {
-            System.out.println(libUrl + " Time Out");
+            failLibSet.add(libUrl);
             e.printStackTrace();
         }
         return libWebInfo;
@@ -110,19 +128,20 @@ public class LibWebConnect {
 
     /**
      * 启用多线程爬取网页信息
+     *
      * @param libUrlSet
      * @return
      */
-    public static Set<LibWebInfo> getLibWebInfoSet(Set<String> libUrlSet){
+    public static Set<LibWebInfo> getLibWebInfoSet(Set<String> libUrlSet) {
         Set<LibWebInfo> libWebInfoSet = Collections.synchronizedSet(new HashSet<>());
-        // 线程上限4
-        ExecutorService fixedThreadPool = Executors.newFixedThreadPool(4);
+        // 线程上限10
+        ExecutorService fixedThreadPool = Executors.newFixedThreadPool(10);
         // 遍历链接抓取信息
-        for (String libUrl : libUrlSet) {
+        for (String libUrlStr : libUrlSet) {
             fixedThreadPool.execute(new Runnable() {
                 public void run() {
-                    LibWebInfo libWebInfo = analysis(libUrl);
-                    if (libWebInfo != null) {
+                    LibWebInfo libWebInfo = analysis(libUrlStr);
+                    if (libWebInfo.getTile() != null) {
                         libWebInfoSet.add(libWebInfo);
                     }
                 }
@@ -137,6 +156,7 @@ public class LibWebConnect {
             }
             try {
                 Thread.sleep(1000);
+                System.out.print(".");
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -144,4 +164,21 @@ public class LibWebConnect {
         return libWebInfoSet;
     }
 
+    /**
+     * 单线程爬取网页信息
+     *
+     * @param libUrlSet
+     * @return
+     */
+    public static Set<LibWebInfo> getLibWebInfoSetSingle(Set<String> libUrlSet) {
+        Set<LibWebInfo> libWebInfoSet = new HashSet<>();
+        for (String libUrlStr : libUrlSet) {
+            System.out.println(libUrlStr);
+            LibWebInfo libWebInfo = analysis(libUrlStr);
+            if (libWebInfo.getTile() != null) {
+                libWebInfoSet.add(libWebInfo);
+            }
+        }
+        return libWebInfoSet;
+    }
 }
