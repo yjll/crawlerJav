@@ -1,4 +1,4 @@
-package Action;
+package util;
 
 import dto.LibWebInfo;
 import org.jsoup.Jsoup;
@@ -26,7 +26,7 @@ public class LibWebConnect {
     // 本地图片root目录
     public static String image_root_path = PropertyUtil.getProperty("IMAGE_ROOT_PATH");
     // 收集超时链接
-    public static Set<String> failLibSet = new HashSet<>();
+    public static Set<String> failLibSet = Collections.synchronizedSet(new HashSet<>());
 
     /**
      * 获取每个网页链接
@@ -36,9 +36,11 @@ public class LibWebConnect {
      */
     public static Set<String> getLibUrlSet() {
         Set<String> webUrlSet = new HashSet<>();
+        String realUrl = null;
         try {
-            for (int i = 1; i <= 1; i++) {
-                Document doc = Jsoup.connect(bestRated + i).userAgent("Mozilla").timeout(5 * 1000).get();
+            for (int i = 1; i <= 25; i++) {
+                realUrl = bestRated + i;
+                Document doc = Jsoup.connect(realUrl).userAgent("Mozilla").timeout(5 * 1000).get();
                 // 获取所有链接
                 Elements links = doc.select("a[href]");
                 for (Element link : links) {
@@ -49,6 +51,7 @@ public class LibWebConnect {
                 }
             }
         } catch (IOException e) {
+            failLibSet.add(realUrl);
             e.printStackTrace();
         }
         return webUrlSet;
@@ -78,9 +81,11 @@ public class LibWebConnect {
             if (!directory.exists()) {
                 directory.mkdir();
             }
+            // 图片文件
             File imageFile = new File(image_root_path + libWebInfo.getNumber() + "/" + libWebInfo.getNumber() + ".jpg");
-            CommonUtil.downloadImage(libWebInfo.getImageUrl(), imageFile.toString());
-
+            if (!imageFile.exists()) {
+                CommonUtil.downloadImage(libWebInfo.getImageUrl(), imageFile.toString());
+            }
 
             libWebInfo.setTile((doc.title().replace(libName, "").trim()));
             // 评分
@@ -120,8 +125,8 @@ public class LibWebConnect {
             libWebInfo.setActorList(actorList);
 
         } catch (IOException e) {
+            System.out.println(libUrl + " Time Out");
             failLibSet.add(libUrl);
-            e.printStackTrace();
         }
         return libWebInfo;
     }
@@ -138,7 +143,8 @@ public class LibWebConnect {
         ExecutorService fixedThreadPool = Executors.newFixedThreadPool(10);
         // 遍历链接抓取信息
         for (String libUrlStr : libUrlSet) {
-            fixedThreadPool.execute(new Runnable() {
+            fixedThreadPool.submit(new Runnable() {
+                @Override
                 public void run() {
                     LibWebInfo libWebInfo = analysis(libUrlStr);
                     if (libWebInfo.getTile() != null) {
@@ -146,6 +152,7 @@ public class LibWebConnect {
                     }
                 }
             });
+
         }
         // 线程池关闭
         fixedThreadPool.shutdown();
