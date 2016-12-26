@@ -41,6 +41,7 @@ public class LibMain {
             localLibWebInfoSet = (Set<LibWebInfo>) CommonUtil.getObject(libWebInfoSetPath);
             for (String url : webLibUrlSet) {
                 if (!localLibUrlSet.contains(url)) {
+                    System.out.println("更新链接" + url);
                     newLibUrlSet.add(url);
                 }
             }

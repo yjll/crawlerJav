@@ -27,39 +27,44 @@ public class LibWebDao {
     }
 
     public void insertVideoInfo(Connection conn, List<VideoInfoBase> videoInfoBaseList) throws SQLException {
-        PreparedStatement stmt = null;
-        stmt = conn.prepareStatement("INSERT INTO video_info(video_no,video_title,video_date,video_duration,video_rated)VALUES(?,?,TO_DATE(?,'YYYY-MM-DD'),?,?)");
-
-        for (VideoInfoBase videoInfoBase : videoInfoBaseList) {
-            stmt.setString(1, videoInfoBase.getNumber());
-            stmt.setString(2, videoInfoBase.getTile());
-            stmt.setString(3, videoInfoBase.getDate());
-            stmt.setString(4, videoInfoBase.getDuration());
-            stmt.setString(5, videoInfoBase.getRated());
-            stmt.executeUpdate();
+        PreparedStatement stmt = conn.prepareStatement("INSERT INTO video_info(video_no,video_title,video_date,video_duration,video_rated)VALUES(?,?,TO_DATE(?,'YYYY-MM-DD'),?,?)");
+        try {
+            for (VideoInfoBase videoInfoBase : videoInfoBaseList) {
+                stmt.setString(1, videoInfoBase.getNumber());
+                stmt.setString(2, videoInfoBase.getTile());
+                stmt.setString(3, videoInfoBase.getDate());
+                stmt.setString(4, videoInfoBase.getDuration());
+                stmt.setString(5, videoInfoBase.getRated());
+                stmt.executeUpdate();
+            }
+        } finally {
+            stmt.close();
         }
-        stmt.close();
     }
 
     public void insertVideoActor(Connection conn, List<VideoActorBase> videoActorBaseList) throws SQLException {
-        PreparedStatement stmt = null;
-        stmt = conn.prepareStatement("INSERT INTO video_acto(video_no,video_actor)VALUES(?,?)");
-        for (VideoActorBase videoActorBase : videoActorBaseList) {
-            stmt.setString(1, videoActorBase.getNumber());
-            stmt.setString(2, videoActorBase.getActor());
-            stmt.executeUpdate();
+        PreparedStatement stmt = conn.prepareStatement("INSERT INTO video_actor(video_no,video_actor)VALUES(?,?)");
+        try {
+            for (VideoActorBase videoActorBase : videoActorBaseList) {
+                stmt.setString(1, videoActorBase.getNumber());
+                stmt.setString(2, videoActorBase.getActor());
+                stmt.executeUpdate();
+            }
+        } finally {
+            stmt.close();
         }
-        stmt.close();
     }
 
     public void insertVideoCategory(Connection conn, List<VideoCategory> videoCategoryList) throws SQLException {
-        PreparedStatement stmt = null;
-        stmt = conn.prepareStatement("INSERT INTO video_actor(video_no,video_actor)VALUES(?,?)");
-        for (VideoCategory videoCategoryBase : videoCategoryList) {
-            stmt.setString(1, videoCategoryBase.getNumber());
-            stmt.setString(2, videoCategoryBase.getCategory());
-            stmt.executeUpdate();
-        }
+        PreparedStatement stmt = conn.prepareStatement("INSERT INT video_category(video_no,video_category)VALUES(?,?)");
+        try {
+            for (VideoCategory videoCategoryBase : videoCategoryList) {
+                stmt.setString(1, videoCategoryBase.getNumber());
+                stmt.setString(2, videoCategoryBase.getCategory());
+                stmt.executeUpdate();
+            }
+        }finally {
         stmt.close();
+        }
     }
 }

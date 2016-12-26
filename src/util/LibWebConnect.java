@@ -5,8 +5,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import util.CommonUtil;
-import util.PropertyUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -76,13 +74,8 @@ public class LibWebConnect {
                     libWebInfo.setImageUrl(imageUrl.attr("src"));
                 }
             }
-            // 将图片保存到本地
-            File directory = new File(image_root_path + libWebInfo.getNumber());
-            if (!directory.exists()) {
-                directory.mkdir();
-            }
             // 图片文件
-            File imageFile = new File(image_root_path + libWebInfo.getNumber() + "/" + libWebInfo.getNumber() + ".jpg");
+            File imageFile = new File(image_root_path + libWebInfo.getNumber() + ".jpg");
             if (!imageFile.exists()) {
                 CommonUtil.downloadImage(libWebInfo.getImageUrl(), imageFile.toString());
             }
