@@ -50,7 +50,7 @@ public class LibWebConnect {
             }
         } catch (IOException e) {
             failLibSet.add(realUrl);
-            e.printStackTrace();
+            System.out.println("超时正在重试...");
         }
         return webUrlSet;
     }

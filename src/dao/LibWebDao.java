@@ -27,7 +27,7 @@ public class LibWebDao {
     }
 
     public void insertVideoInfo(Connection conn, List<VideoInfoBase> videoInfoBaseList) throws SQLException {
-        PreparedStatement stmt = conn.prepareStatement("INSERT INTO video_info(video_no,video_title,video_date,video_duration,video_rated)VALUES(?,?,TO_DATE(?,'YYYY-MM-DD'),?,?)");
+        PreparedStatement stmt = conn.prepareStatement("INSERT INTO video_info(video_no,video_title,video_date,video_duration,video_rated,system_time)VALUES(?,?,TO_DATE(?,'YYYY-MM-DD'),?,?,sysdate)");
         try {
             for (VideoInfoBase videoInfoBase : videoInfoBaseList) {
                 stmt.setString(1, videoInfoBase.getNumber());
@@ -56,15 +56,15 @@ public class LibWebDao {
     }
 
     public void insertVideoCategory(Connection conn, List<VideoCategory> videoCategoryList) throws SQLException {
-        PreparedStatement stmt = conn.prepareStatement("INSERT INT video_category(video_no,video_category)VALUES(?,?)");
+        PreparedStatement stmt = conn.prepareStatement("INSERT INTO video_category(video_no,video_category)VALUES(?,?)");
         try {
             for (VideoCategory videoCategoryBase : videoCategoryList) {
                 stmt.setString(1, videoCategoryBase.getNumber());
                 stmt.setString(2, videoCategoryBase.getCategory());
                 stmt.executeUpdate();
             }
-        }finally {
-        stmt.close();
+        } finally {
+            stmt.close();
         }
     }
 }
