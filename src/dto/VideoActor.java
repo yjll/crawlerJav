@@ -5,7 +5,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 
-public class VideoActorBase implements Serializable {
+public class VideoActor implements Serializable {
     private String number;
 
     private String actor;

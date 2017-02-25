@@ -5,7 +5,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 
-public class VideoInfoBase implements Serializable {
+public class VideoInfo implements Serializable {
     private String number;
 
     private String tile;

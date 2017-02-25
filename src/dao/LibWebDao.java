@@ -1,8 +1,8 @@
 package dao;
 
-import dto.VideoActorBase;
+import dto.VideoActor;
 import dto.VideoCategory;
-import dto.VideoInfoBase;
+import dto.VideoInfo;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -14,27 +14,27 @@ public class LibWebDao {
 
     static {
         try {
-            Class.forName("oracle.jdbc.driver.OracleDriver");
+            Class.forName("com.mysql.jdbc.Driver");
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
     }
 
     public Connection getConnection() throws SQLException {
-        Connection conn = DriverManager.getConnection("jdbc:oracle:thin:@192.168.56.10:1521:orcl", "scott", "root");
+        Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/jav?useUnicode=true&characterEncoding=UTF-8", "root", "admin");
         conn.setAutoCommit(false);
         return conn;
     }
 
-    public void insertVideoInfo(Connection conn, List<VideoInfoBase> videoInfoBaseList) throws SQLException {
-        PreparedStatement stmt = conn.prepareStatement("INSERT INTO video_info(video_no,video_title,video_date,video_duration,video_rated,system_time)VALUES(?,?,TO_DATE(?,'YYYY-MM-DD'),?,?,sysdate)");
+    public void insertVideoInfo(Connection conn, List<VideoInfo> videoInfoList) throws SQLException {
+        PreparedStatement stmt = conn.prepareStatement("INSERT INTO video_info(video_no,video_title,video_date,video_duration,video_rated,system_time)VALUES(?,?,?,?,?,CURDATE())");
         try {
-            for (VideoInfoBase videoInfoBase : videoInfoBaseList) {
-                stmt.setString(1, videoInfoBase.getNumber());
-                stmt.setString(2, videoInfoBase.getTile());
-                stmt.setString(3, videoInfoBase.getDate());
-                stmt.setString(4, videoInfoBase.getDuration());
-                stmt.setString(5, videoInfoBase.getRated());
+            for (VideoInfo videoInfo : videoInfoList) {
+                stmt.setString(1, videoInfo.getNumber());
+                stmt.setString(2, videoInfo.getTile());
+                stmt.setString(3, videoInfo.getDate());
+                stmt.setString(4, videoInfo.getDuration());
+                stmt.setString(5, videoInfo.getRated());
                 stmt.executeUpdate();
             }
         } finally {
@@ -42,12 +42,12 @@ public class LibWebDao {
         }
     }
 
-    public void insertVideoActor(Connection conn, List<VideoActorBase> videoActorBaseList) throws SQLException {
+    public void insertVideoActor(Connection conn, List<VideoActor> videoActorList) throws SQLException {
         PreparedStatement stmt = conn.prepareStatement("INSERT INTO video_actor(video_no,video_actor)VALUES(?,?)");
         try {
-            for (VideoActorBase videoActorBase : videoActorBaseList) {
-                stmt.setString(1, videoActorBase.getNumber());
-                stmt.setString(2, videoActorBase.getActor());
+            for (VideoActor videoActor : videoActorList) {
+                stmt.setString(1, videoActor.getNumber());
+                stmt.setString(2, videoActor.getActor());
                 stmt.executeUpdate();
             }
         } finally {

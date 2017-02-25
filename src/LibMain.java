@@ -18,11 +18,13 @@ public class LibMain {
     public static void main(String[] args) throws Exception {
         // 链接列表
         Set<String> webLibUrlSet;
+
+        LibWebConnect libWebConnect = new LibWebConnect();
         while (true) {
-            LibWebConnect.failLibSet.clear();
+            libWebConnect.failLibSet.clear();
             // 从Web获取链接列表
-            webLibUrlSet = LibWebConnect.getLibUrlSet();
-            if (LibWebConnect.failLibSet.size() == 0) {
+            webLibUrlSet = libWebConnect.getTopLibUrlSet();
+            if (libWebConnect.failLibSet.size() == 0) {
                 break;
             }
         }
@@ -51,10 +53,10 @@ public class LibMain {
         // 插入数据库数据
         Set<LibWebInfo> dbSet = new HashSet<>();
         while (true) {
-            System.out.println("The lengeth of newLibUrlSet is " + newLibUrlSet.size());
-            LibWebConnect.failLibSet.clear();
+            System.out.println("The size of newLibUrlSet is " + newLibUrlSet.size());
+            libWebConnect.failLibSet.clear();
             // 获取页面信息
-            libWebInfoSet = LibWebConnect.getLibWebInfoSet(newLibUrlSet);
+            libWebInfoSet = libWebConnect.getLibWebInfoSet(newLibUrlSet);
 
             for (LibWebInfo libWebInfo : libWebInfoSet) {
                 // 已获取到的页面的地址
@@ -64,7 +66,7 @@ public class LibMain {
             }
             // 获取失败链接
             Set<String> failLibSet = new HashSet<>();
-            for (String url : LibWebConnect.failLibSet) {
+            for (String url : libWebConnect.failLibSet) {
                 failLibSet.add(url);
             }
             if (failLibSet.size() == 0) {

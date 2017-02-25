@@ -33,6 +33,6 @@
     <orderEntry type="library" name="commons-logging-1.1.3" level="project" />
     <orderEntry type="library" name="commons-collections4-4.1" level="project" />
     <orderEntry type="library" name="commons-beanutils-1.8.0" level="project" />
-    <orderEntry type="library" name="ojdbc6" level="project" />
+    <orderEntry type="library" name="mysql-connector-java-5.1.40-bin" level="project" />
   </component>
 </module>
