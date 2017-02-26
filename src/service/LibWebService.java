@@ -16,26 +16,25 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class LibWebService {
     // Lib网页信息本地存储路径
-    public static String libWebInfoSetPath = PropertyUtil.getProperty("LIB_WEB_INFO_SET_PATH");
+    public static final String LIB_WEB_INFO_SET_PATH = PropertyUtil.getProperty("LIB_WEB_INFO_SET_PATH");
 
     public void blMain(Set<LibWebInfo> libWebInfoSet) throws InvocationTargetException, IllegalAccessException, SQLException {
 
         Set<String> tempSet = new HashSet<>();
         // 本地影片信息
-        Set<LibWebInfo> localLibWebInfoList = (Set<LibWebInfo>) CommonUtil.getObject(libWebInfoSetPath);
+        Set<LibWebInfo> localLibWebInfoList = (Set<LibWebInfo>) CommonUtil.getObject(LIB_WEB_INFO_SET_PATH);
         // 影片表
         List<VideoInfo> videoInfoList = new ArrayList<>();
         // 演员表
-        List<VideoActor> videoActorBasesList = new ArrayList<>();
+        List<VideoActor> videoActorList = new ArrayList<>();
         // 类别表
         List<VideoCategory> videoCategoryList = new ArrayList<>();
 
-        for (LibWebInfo libWebInfo : localLibWebInfoList) {
-            tempSet.add(libWebInfo.getNumber());
-        }
+        tempSet.addAll(localLibWebInfoList.stream().map(LibWebInfo::getNumber).collect(Collectors.toList()));
 
         for (LibWebInfo libWebInfo : libWebInfoSet) {
             // 去掉重复影片
@@ -48,7 +47,7 @@ public class LibWebService {
                     VideoActor videoActor = new VideoActor();
                     videoActor.setNumber(libWebInfo.getNumber());
                     videoActor.setActor(actor);
-                    videoActorBasesList.add(videoActor);
+                    videoActorList.add(videoActor);
                 }
 
                 for (String category : libWebInfo.getCategoryList()) {
@@ -64,7 +63,7 @@ public class LibWebService {
         try {
             conn = libWebDao.getConnection();
             libWebDao.insertVideoInfo(conn, videoInfoList);
-            libWebDao.insertVideoActor(conn, videoActorBasesList);
+            libWebDao.insertVideoActor(conn, videoActorList);
             libWebDao.insertVideoCategory(conn, videoCategoryList);
             conn.commit();
         } catch (SQLException e) {

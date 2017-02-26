@@ -1,6 +1,7 @@
 package util;
 
 import dto.LibWebInfo;
+import org.apache.commons.collections4.CollectionUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -17,15 +18,15 @@ import java.util.stream.Collectors;
 
 public class LibWebConnect {
     // 网址
-    public static String LIB_URL = PropertyUtil.getProperty("LIB_URL");
+    public static final String LIB_URL = PropertyUtil.getProperty("LIB_URL");
     // 根据评分排名URL
-    public static String BEST_RATED = LIB_URL + PropertyUtil.getProperty("BEST_RATED");
+    public static final String BEST_RATED = LIB_URL + PropertyUtil.getProperty("BEST_RATED");
     // 根据No检索
-    public static String SEARCH_BY_NO = LIB_URL + PropertyUtil.getProperty("SEARCH_BY_NO");
+    public static final String SEARCH_BY_NO = LIB_URL + PropertyUtil.getProperty("SEARCH_BY_NO");
     // 网站英文名称
-    public static String LIB_NAME = PropertyUtil.getProperty("LIB_NAME");
+    public static final String LIB_NAME = PropertyUtil.getProperty("LIB_NAME");
     // 本地图片root目录
-    public static String IMAGE_ROOT_PATH = PropertyUtil.getProperty("IMAGE_ROOT_PATH");
+    public static final String IMAGE_ROOT_PATH = PropertyUtil.getProperty("IMAGE_ROOT_PATH");
 
     // 收集超时链接
     public Set<String> failLibSet = Collections.synchronizedSet(new HashSet<>());
@@ -38,7 +39,7 @@ public class LibWebConnect {
      */
     public Set<String> getTopLibUrlSet() {
         Set<String> webUrlSet = new HashSet<>();
-        for (int i = 1; i <= 1; i++) {
+        for (int i = 1; i <= 25; i++) {
             webUrlSet.addAll(getLibUrlSet(BEST_RATED + i));
         }
         return webUrlSet;
@@ -47,27 +48,36 @@ public class LibWebConnect {
 
     /**
      * 根据No查询出真实的链接
-     * @param number
+     *
+     * @param numbers
      * @return
      */
-    public Set<String> getLibWebInfoByNo(String... number) {
+    public Set<String> getLibWebInfoByNo(Set<String> numbers) {
         Set<String> libUrlSet = new HashSet<>();
-        try {
-            for (String s : number) {
-                Document doc = Jsoup.connect(SEARCH_BY_NO + s).userAgent("Mozilla").timeout(5 * 1000).get();
-                String realUrl = doc.select("meta[property]").stream()
-                        .filter(element -> "og:url".equals(element.attr("property")))
-                        .map(element -> element.attr("content"))
-                        .map(element -> LIB_URL + element.substring(element.lastIndexOf("/"),element.length()))
-                        .collect(Collectors.toList()).get(0);
-                libUrlSet.add(realUrl);
+        failLibSet.clear();
+        if (numbers.isEmpty()) {
+            return libUrlSet;
+        } else {
+            try {
+                for (String s : numbers) {
+                    Document doc = Jsoup.connect(SEARCH_BY_NO + s).userAgent("Mozilla").timeout(5 * 1000).get();
+                    doc.select("meta[property]").stream()
+                            .filter(element -> "og:url".equals(element.attr("property")))
+                            .map(element -> element.attr("content"))
+                            .map(element -> element.substring(element.lastIndexOf("/") + 1, element.length()))
+                            .forEach(libUrlSet::add);
+                }
+            } catch (IOException e) {
+                numbers.forEach(failLibSet::add);
+                System.out.println("超时正在重试...");
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+            // 递归根据No取链接，直到failLibSet为空
+            libUrlSet.addAll(getLibWebInfoByNo(failLibSet));
+            return libUrlSet;
         }
-        return libUrlSet;
 
     }
+
 
     /**
      * 获取列表页面的所有链接
@@ -82,11 +92,11 @@ public class LibWebConnect {
             Elements links = doc.select("a[href]");
             return links.stream()
                     .filter(link -> Pattern.matches(".*v=.*", link.attr("href")))
-                    .map(link -> LIB_URL + link.attr("href").substring(2))
+                    .map(link -> link.attr("href").substring(2))
                     .collect(Collectors.toSet());
         } catch (IOException e) {
-            failLibSet.add(url);
             System.out.println("超时正在重试...");
+            getLibUrlSet(url);
         }
         return null;
     }
@@ -98,19 +108,16 @@ public class LibWebConnect {
      * @param libUrl
      * @return
      */
-    public LibWebInfo analysis(String libUrl) {
+    private LibWebInfo analysis(String libUrl) {
         LibWebInfo libWebInfo = new LibWebInfo();
         try {
             Document doc = Jsoup.connect(libUrl).userAgent("Mozilla").timeout(5 * 1000).get();
-            libWebInfo.setUrl(libUrl);
+            libWebInfo.setUrl(libUrl.substring(libUrl.lastIndexOf("/") + 1, libUrl.length()));
             libWebInfo.setNumber(doc.title().trim().split(" ")[0]);
             // 获取图片链接地址
             Elements imageUrls = doc.select("img[id]");
-            for (Element imageUrl : imageUrls) {
-                if ("video_jacket_img".equals(imageUrl.attr("id"))) {
-                    libWebInfo.setImageUrl(imageUrl.attr("src"));
-                }
-            }
+            imageUrls.stream().filter(imageUrl -> "video_jacket_img".equals(imageUrl.attr("id")))
+                    .forEach(imageUrl -> libWebInfo.setImageUrl(imageUrl.attr("src")));
             // 图片文件
             File imageFile = new File(IMAGE_ROOT_PATH + libWebInfo.getNumber() + ".jpg");
             if (!imageFile.exists()) {
@@ -128,30 +135,25 @@ public class LibWebConnect {
             // 时长
             libWebInfo.setDuration(doc.select("span.text").text());
 
+            // 日期
             Elements texts = doc.select("td.text");
-            for (Element text : texts) {
-                if (Pattern.matches("\\d{4}-\\d{2}-\\d{2}", text.text())) {
-                    libWebInfo.setDate(text.text());
-                }
-            }
+            texts.stream().filter(text -> Pattern.matches("\\d{4}-\\d{2}-\\d{2}", text.text()))
+                    .forEach(text -> libWebInfo.setDate(text.text()));
+
             // 类别
-            List<String> categoryList = new ArrayList<>();
             Elements as = doc.select("a[rel]");
-            for (Element a : as) {
-                if ("category tag".equals(a.attr("rel"))) {
-                    categoryList.add(a.text());
-                }
-            }
+            List<String> categoryList = as.stream()
+                    .filter(a -> "category tag".equals(a.attr("rel")))
+                    .map(Element::text)
+                    .collect(Collectors.toList());
             libWebInfo.setCategoryList(categoryList);
 
             // 演员
-            List<String> actorList = new ArrayList<>();
             Elements actors = doc.select("a[href]");
-            for (Element actor : actors) {
-                if (actor.attr("href").startsWith("vl_star")) {
-                    actorList.add(actor.text());
-                }
-            }
+            List<String> actorList = actors.stream()
+                    .filter(actor -> actor.attr("href").startsWith("vl_star"))
+                    .map(Element::text)
+                    .collect(Collectors.toList());
             libWebInfo.setActorList(actorList);
 
         } catch (IOException e) {
@@ -161,25 +163,48 @@ public class LibWebConnect {
         return libWebInfo;
     }
 
+    public Set<LibWebInfo> getDbSet(Set<String> newLibUrlSet) {
+        // 页面信息
+        Set<LibWebInfo> libWebInfoSet;
+        // 插入数据库数据
+        Set<LibWebInfo> dbSet = new HashSet<>();
+        while (true) {
+            System.out.println("The size of newLibUrlSet is " + newLibUrlSet.size());
+            failLibSet.clear();
+            // 获取页面信息
+            libWebInfoSet = getLibWebInfoSet(newLibUrlSet);
+
+            // 已获取到的页面的地址
+            dbSet.addAll(libWebInfoSet);
+
+            if (failLibSet.size() == 0) {
+                break;
+            } else {
+                System.out.println("超时URL:");
+                failLibSet.forEach(System.out::println);
+            }
+            // 根据失败的链接重新获取信息
+            newLibUrlSet = failLibSet;
+        }
+        return dbSet;
+    }
+
     /**
      * 启用多线程爬取网页信息
      *
      * @param libUrlSet
      * @return
      */
-    public Set<LibWebInfo> getLibWebInfoSet(Set<String> libUrlSet) {
+    private Set<LibWebInfo> getLibWebInfoSet(Set<String> libUrlSet) {
         Set<LibWebInfo> libWebInfoSet = Collections.synchronizedSet(new HashSet<>());
         // 线程上限10
         ExecutorService fixedThreadPool = Executors.newFixedThreadPool(10);
         // 遍历链接抓取信息
         for (String libUrlStr : libUrlSet) {
-            fixedThreadPool.submit(new Runnable() {
-                @Override
-                public void run() {
-                    LibWebInfo libWebInfo = analysis(libUrlStr);
-                    if (libWebInfo.getTile() != null) {
-                        libWebInfoSet.add(libWebInfo);
-                    }
+            fixedThreadPool.submit(() -> {
+                LibWebInfo libWebInfo = analysis(LIB_URL + libUrlStr);
+                if (libWebInfo.getTile() != null) {
+                    libWebInfoSet.add(libWebInfo);
                 }
             });
 
@@ -207,7 +232,7 @@ public class LibWebConnect {
      * @param libUrlSet
      * @return
      */
-    public Set<LibWebInfo> getLibWebInfoSetSingle(Set<String> libUrlSet) {
+    private Set<LibWebInfo> getLibWebInfoSetSingle(Set<String> libUrlSet) {
         Set<LibWebInfo> libWebInfoSet = new HashSet<>();
         for (String libUrlStr : libUrlSet) {
             System.out.println(libUrlStr);
