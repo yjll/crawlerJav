@@ -1,7 +1,7 @@
 import dto.LibWebInfo;
 import service.LibWebService;
 import util.CommonUtil;
-import util.LibWebConnect;
+import service.LibWebConnect;
 import util.PropertyUtil;
 
 import java.io.File;
@@ -18,7 +18,7 @@ public class LibMain {
 
     public static void main(String[] args) throws Exception {
         // 链接列表
-        Set<String> webLibUrlSet;
+        Set<String> webLibUrlSet ;
         // 本地链接列表
         Set<String> localLibUrlSet = new HashSet<>();
         // 最近更新的链接列表
