@@ -27,7 +27,7 @@ public class LibWebDao {
     }
 
     public void insertVideoInfo(Connection conn, List<VideoInfo> videoInfoList) throws SQLException {
-        PreparedStatement stmt = conn.prepareStatement("INSERT INTO video_info(video_no,video_title,video_date,video_duration,video_rated,system_time)VALUES(?,?,?,?,?,CURDATE())");
+        PreparedStatement stmt = conn.prepareStatement("INSERT INTO videoinfo(VIDEONO,VIDEOTITLE,VIDEODATE,VIDEODURATION,VIDEORATED,SYSTEMTIME)VALUES(?,?,?,?,?,CURDATE())");
         try {
             for (VideoInfo videoInfo : videoInfoList) {
                 stmt.setString(1, videoInfo.getNumber());
@@ -43,7 +43,7 @@ public class LibWebDao {
     }
 
     public void insertVideoActor(Connection conn, List<VideoActor> videoActorList) throws SQLException {
-        PreparedStatement stmt = conn.prepareStatement("INSERT INTO video_actor(video_no,video_actor)VALUES(?,?)");
+        PreparedStatement stmt = conn.prepareStatement("INSERT INTO videoactor(VIDEONO,VIDEOACTOR)VALUES(?,?)");
         try {
             for (VideoActor videoActor : videoActorList) {
                 stmt.setString(1, videoActor.getNumber());
@@ -56,7 +56,7 @@ public class LibWebDao {
     }
 
     public void insertVideoCategory(Connection conn, List<VideoCategory> videoCategoryList) throws SQLException {
-        PreparedStatement stmt = conn.prepareStatement("INSERT INTO video_category(video_no,video_category)VALUES(?,?)");
+        PreparedStatement stmt = conn.prepareStatement("INSERT INTO videocategory(VIDEONO,VIDEOCATEGORY)VALUES(?,?)");
         try {
             for (VideoCategory videoCategoryBase : videoCategoryList) {
                 stmt.setString(1, videoCategoryBase.getNumber());

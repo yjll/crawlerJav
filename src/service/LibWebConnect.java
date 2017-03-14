@@ -1,11 +1,12 @@
-package util;
+package service;
 
 import dto.LibWebInfo;
-import org.apache.commons.collections4.CollectionUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import util.CommonUtil;
+import util.PropertyUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,7 +41,7 @@ public class LibWebConnect {
     public Set<String> getTopLibUrlSet() {
         Set<String> webUrlSet = new HashSet<>();
         for (int i = 1; i <= 25; i++) {
-            webUrlSet.addAll(getLibUrlSet(BEST_RATED + i));
+            webUrlSet.addAll(getUrlSet(BEST_RATED + i));
         }
         return webUrlSet;
 
@@ -64,7 +65,7 @@ public class LibWebConnect {
                     doc.select("meta[property]").stream()
                             .filter(element -> "og:url".equals(element.attr("property")))
                             .map(element -> element.attr("content"))
-                            .map(element -> element.substring(element.lastIndexOf("/") + 1, element.length()))
+                            .map(element -> element.substring(element.lastIndexOf("/") + 1))
                             .forEach(libUrlSet::add);
                 }
             } catch (IOException e) {
@@ -85,7 +86,7 @@ public class LibWebConnect {
      * @param url
      * @return
      */
-    private Set<String> getLibUrlSet(String url) {
+    private Set<String> getUrlSet(String url) {
         try {
             Document doc = Jsoup.connect(url).userAgent("Mozilla").timeout(5 * 1000).get();
             // 获取所有链接
@@ -96,7 +97,7 @@ public class LibWebConnect {
                     .collect(Collectors.toSet());
         } catch (IOException e) {
             System.out.println("超时正在重试...");
-            getLibUrlSet(url);
+            getUrlSet(url);
         }
         return null;
     }
@@ -112,7 +113,7 @@ public class LibWebConnect {
         LibWebInfo libWebInfo = new LibWebInfo();
         try {
             Document doc = Jsoup.connect(libUrl).userAgent("Mozilla").timeout(5 * 1000).get();
-            libWebInfo.setUrl(libUrl.substring(libUrl.lastIndexOf("/") + 1, libUrl.length()));
+            libWebInfo.setUrl(libUrl.substring(libUrl.lastIndexOf("/") + 1));
             libWebInfo.setNumber(doc.title().trim().split(" ")[0]);
             // 获取图片链接地址
             Elements imageUrls = doc.select("img[id]");
