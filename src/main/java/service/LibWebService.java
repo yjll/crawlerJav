@@ -1,11 +1,13 @@
 package service;
 
 import dao.LibWebDao;
+import dao.SessionFactory;
 import dto.LibWebInfo;
 import dto.VideoActor;
 import dto.VideoCategory;
 import dto.VideoInfo;
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.ibatis.session.SqlSession;
 import util.CommonUtil;
 import util.PropertyUtil;
 
@@ -58,13 +60,15 @@ public class LibWebService {
                 }
             }
         }
-        LibWebDao libWebDao = new LibWebDao();
+//        LibWebDao libWebDao = new LibWebDao();
         Connection conn = null;
+
         try {
-            conn = libWebDao.getConnection();
-            libWebDao.insertVideoInfo(conn, videoInfoList);
-            libWebDao.insertVideoActor(conn, videoActorList);
-            libWebDao.insertVideoCategory(conn, videoCategoryList);
+
+//            conn = libWebDao.getConnection();
+//            libWebDao.insertVideoInfo(conn, videoInfoList);
+//            libWebDao.insertVideoActor(conn, videoActorList);
+//            libWebDao.insertVideoCategory(conn, videoCategoryList);
             conn.commit();
         } catch (SQLException e) {
             e.printStackTrace();
