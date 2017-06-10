@@ -1,6 +1,8 @@
+#Java生成文件
 *.class
 
+#IDEA配置
 .idea/
 out/
 target/
-crawlerJav.iml
+*.iml
