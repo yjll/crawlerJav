@@ -1,28 +1,23 @@
 package dto;
 
-import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.List;
-
-public class VideoActor implements Serializable {
-    private String number;
-
+public class VideoActor {
     private String actor;
 
-    public String getNumber() {
-        return number;
-    }
-
-    public void setNumber(String number) {
-        this.number = number;
-    }
+    private String no;
 
     public String getActor() {
         return actor;
     }
 
     public void setActor(String actor) {
-        this.actor = actor;
+        this.actor = actor == null ? null : actor.trim();
+    }
+
+    public String getNo() {
+        return no;
+    }
+
+    public void setNo(String no) {
+        this.no = no == null ? null : no.trim();
     }
 }

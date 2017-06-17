@@ -1,68 +1,76 @@
 package dto;
 
-import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.List;
+import java.util.Date;
 
-public class VideoInfo implements Serializable {
-    private String number;
+public class VideoInfo {
+    private String no;
 
-    private String tile;
+    private String javlibUrl;
 
-    private String date;
+    private String title;
 
-    private String duration;
+    private Date date;
 
-    private String rated;
+    private Float rated;
 
-    private String subTitles;
+    private Integer duretion;
 
-    public String getNumber() {
-        return number;
+
+    private Date systemTime;
+
+    public String getNo() {
+        return no;
     }
 
-    public void setNumber(String number) {
-        this.number = number;
+    public void setNo(String no) {
+        this.no = no == null ? null : no.trim();
     }
 
-    public String getTile() {
-        return tile;
+    public String getJavlibUrl() {
+        return javlibUrl;
     }
 
-    public void setTile(String tile) {
-        this.tile = tile;
+    public void setJavlibUrl(String javlibUrl) {
+        this.javlibUrl = javlibUrl == null ? null : javlibUrl.trim();
     }
 
-    public String getDate() {
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title == null ? null : title.trim();
+    }
+
+    public Date getDate() {
         return date;
     }
 
-    public void setDate(String date) {
+    public void setDate(Date date) {
         this.date = date;
     }
 
-    public String getDuration() {
-        return duration;
+    public Integer getDuretion() {
+        return duretion;
     }
 
-    public void setDuration(String duration) {
-        this.duration = duration;
+    public void setDuretion(Integer duretion) {
+        this.duretion = duretion;
     }
 
-    public String getRated() {
+    public Date getSystemTime() {
+        return systemTime;
+    }
+
+    public void setSystemTime(Date systemTime) {
+        this.systemTime = systemTime;
+    }
+
+    public Float getRated() {
         return rated;
     }
 
-    public void setRated(String rated) {
+    public void setRated(Float rated) {
         this.rated = rated;
-    }
-
-    public String getSubTitles() {
-        return subTitles;
-    }
-
-    public void setSubTitles(String subTitles) {
-        this.subTitles = subTitles;
     }
 }

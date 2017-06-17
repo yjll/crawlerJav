@@ -3,6 +3,12 @@
         PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-config.dtd">
 <configuration>
+
+    <typeAliases>
+        <package name="dto" />
+    </typeAliases>
+
+
     <!-- 对事务的管理和连接池的配置 -->
     <environments default="development">
         <environment id="development">
@@ -34,6 +40,8 @@
 
     <!-- mapping 文件路径配置 -->
     <mappers>
-        <mapper resource="mybatis/LibWebMapper.xml"/>
+        <mapper resource="mybatis/VideoActorMapper.xml"/>
+        <mapper resource="mybatis/VideoCategoryMapper.xml"/>
+        <mapper resource="mybatis/VideoInfoMapper.xml"/>
     </mappers>
 </configuration>

@@ -1,25 +1,20 @@
-import dao.LibWebDao;
 import dao.SessionFactory;
-import dto.LibWebInfo;
+import dao.VideoInfoDao;
 import org.apache.ibatis.session.SqlSession;
-import service.LibWebService;
-import util.CommonUtil;
-import util.PropertyUtil;
 
-import java.lang.reflect.InvocationTargetException;
-import java.sql.SQLException;
 import java.util.List;
-import java.util.Set;
 
 public class ClientTest {
 
     public static void main(String[] args) {
         SqlSession sqlSession = SessionFactory.newSqlSession();
+        VideoInfoDao videoInfoDao = sqlSession.getMapper(VideoInfoDao.class);
 //        LibWebDao libWebDao = sqlSession.getMapper(LibWebDao.class);
 
-        List<String> noList = sqlSession.selectList("findNoList");
+        List<String> noList = null;
+//                = sqlSession.selectList("findNoList");
         try {
-//            noList = libWebDao.findNoList();
+            noList = videoInfoDao.findNoList();
         } catch (Exception e) {
             e.printStackTrace();
         }

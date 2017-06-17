@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.VideoInfoDao">
+    <resultMap id="BaseResultMap" type="VideoInfo">
+        <id column="no" jdbcType="VARCHAR" property="no"/>
+        <result column="javlib_url" jdbcType="VARCHAR" property="javlibUrl"/>
+        <result column="title" jdbcType="VARCHAR" property="title"/>
+        <result column="date" jdbcType="DATE" property="date"/>
+        <result column="duretion" jdbcType="INTEGER" property="duretion"/>
+        <result column="rated" jdbcType="REAL" property="rated"/>
+        <result column="system_time" jdbcType="TIMESTAMP" property="systemTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        no, javlib_url, title, date, duretion, rated, system_time
+    </sql>
+
+    <select id="selectByNo" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from video_info
+        where no = #{no,jdbcType=VARCHAR}
+    </select>
+
+    <select id="findNoList" resultType="String">
+        select no from video_info
+    </select>
+
+
+    <insert id="insert" parameterType="VideoInfo">
+        insert into video_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="no != null">
+                no,
+            </if>
+            <if test="javlibUrl != null">
+                javlib_url,
+            </if>
+            <if test="title != null">
+                title,
+            </if>
+            <if test="date != null">
+                date,
+            </if>
+            <if test="duretion != null">
+                duretion,
+            </if>
+            <if test="rated != null">
+                rated,
+            </if>
+            <if test="systemTime != null">
+                system_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="no != null">
+                #{no,jdbcType=VARCHAR},
+            </if>
+            <if test="javlibUrl != null">
+                #{javlibUrl,jdbcType=VARCHAR},
+            </if>
+            <if test="title != null">
+                #{title,jdbcType=VARCHAR},
+            </if>
+            <if test="date != null">
+                #{date,jdbcType=DATE},
+            </if>
+            <if test="duretion != null">
+                #{duretion,jdbcType=INTEGER},
+            </if>
+            <if test="rated != null">
+                #{rated,jdbcType=REAL},
+            </if>
+            <if test="systemTime != null">
+                #{systemTime,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+
+</mapper>

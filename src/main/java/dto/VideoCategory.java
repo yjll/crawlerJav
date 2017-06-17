@@ -1,28 +1,23 @@
 package dto;
 
-import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.List;
-
-public class VideoCategory implements Serializable {
-    private String number;
-
+public class VideoCategory {
     private String category;
 
-    public String getNumber() {
-        return number;
-    }
-
-    public void setNumber(String number) {
-        this.number = number;
-    }
+    private String no;
 
     public String getCategory() {
         return category;
     }
 
     public void setCategory(String category) {
-        this.category = category;
+        this.category = category == null ? null : category.trim();
+    }
+
+    public String getNo() {
+        return no;
+    }
+
+    public void setNo(String no) {
+        this.no = no == null ? null : no.trim();
     }
 }

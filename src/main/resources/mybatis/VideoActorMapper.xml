@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.VideoActorDao">
+    <resultMap id="BaseResultMap" type="dto.VideoActor">
+        <result column="actor" jdbcType="VARCHAR" property="actor"/>
+        <result column="no" jdbcType="VARCHAR" property="no"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="VideoActor">
+        insert into video_actor
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="actor != null">
+                actor,
+            </if>
+            <if test="no != null">
+                no,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="actor != null">
+                #{actor,jdbcType=VARCHAR},
+            </if>
+            <if test="no != null">
+                #{no,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+
+</mapper>

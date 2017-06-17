@@ -8,13 +8,14 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
+import util.Count;
+
+import static util.Count.LIB_URL_SET_PATH;
+import static util.Count.LIB_WEB_INFO_SET_PATH;
 
 public class LibMain {
 
-    // Lib链接本地存储路径
-    public static final String LIB_URL_SET_PATH = PropertyUtil.getProperty("LIB_URL_SET_PATH");
-    // Lib网页信息本地存储路径
-    public static final String LIB_WEB_INFO_SET_PATH = PropertyUtil.getProperty("LIB_WEB_INFO_SET_PATH");
+
 
     public static void main(String[] args) throws Exception {
         // 链接列表

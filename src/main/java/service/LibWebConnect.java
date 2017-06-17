@@ -16,17 +16,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static util.Count.*;
+
 public class LibWebConnect {
-    // 网址
-    public static final String LIB_URL = PropertyUtil.getProperty("LIB_URL");
-    // 根据评分排名URL
-    public static final String BEST_RATED = LIB_URL + PropertyUtil.getProperty("BEST_RATED");
-    // 根据No检索
-    public static final String SEARCH_BY_NO = LIB_URL + PropertyUtil.getProperty("SEARCH_BY_NO");
-    // 网站英文名称
-    public static final String LIB_NAME = PropertyUtil.getProperty("LIB_NAME");
-    // 本地图片root目录
-    public static final String IMAGE_ROOT_PATH = PropertyUtil.getProperty("IMAGE_ROOT_PATH");
+
 
     // 收集超时链接
     public Set<String> failLibSet = Collections.synchronizedSet(new HashSet<>());

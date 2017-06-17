@@ -97,23 +97,16 @@ public class LibWebInfo implements Serializable {
 
     @Override
     public String toString() {
-        String str = "";
-
-        Class clazz = this.getClass();
-        Method[] methods = clazz.getMethods();
-        try {
-            for (Method method : methods) {
-                if (method.getName().startsWith("get") && !"getClass".equals(method.getName())) {
-                    Object obj = method.invoke(this);
-                    str += method.getName().substring(3) + "\t" + obj + "\n";
-                }
-            }
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        }
-        return str;
-
+        return "LibWebInfo{" +
+                "url='" + url + '\'' +
+                ", number='" + number + '\'' +
+                ", tile='" + tile + '\'' +
+                ", date='" + date + '\'' +
+                ", duration='" + duration + '\'' +
+                ", rated='" + rated + '\'' +
+                ", categoryList=" + categoryList +
+                ", actorList=" + actorList +
+                ", imageUrl='" + imageUrl + '\'' +
+                '}';
     }
 }
