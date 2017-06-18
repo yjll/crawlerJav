@@ -1,12 +1,13 @@
 package service;
 
 import dto.LibWebInfo;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import util.CommonUtil;
-import util.PropertyUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,6 +21,8 @@ import static util.Count.*;
 
 public class LibWebConnect {
 
+    private Log logger = LogFactory.getLog(this.getClass());
+
 
     // 收集超时链接
     public Set<String> failLibSet = Collections.synchronizedSet(new HashSet<>());
@@ -31,12 +34,14 @@ public class LibWebConnect {
      * @throws IOException
      */
     public Set<String> getTopLibUrlSet() {
+        logger.info("获取高分链接");
+        logger.info("===Start===");
         Set<String> webUrlSet = new HashSet<>();
         for (int i = 1; i <= 25; i++) {
             webUrlSet.addAll(getUrlSet(BEST_RATED + i));
         }
+        logger.info("===End===");
         return webUrlSet;
-
     }
 
     /**
@@ -61,7 +66,7 @@ public class LibWebConnect {
                             .forEach(libUrlSet::add);
                 }
             } catch (IOException e) {
-                numbers.forEach(failLibSet::add);
+                failLibSet.addAll(numbers);
                 System.out.println("超时正在重试...");
             }
             // 递归根据No取链接，直到failLibSet为空
@@ -106,13 +111,13 @@ public class LibWebConnect {
         try {
             Document doc = Jsoup.connect(libUrl).userAgent("Mozilla").timeout(5 * 1000).get();
             libWebInfo.setUrl(libUrl.substring(libUrl.lastIndexOf("/") + 1));
-            libWebInfo.setNumber(doc.title().trim().split(" ")[0]);
+            libWebInfo.setNo(doc.title().trim().split(" ")[0]);
             // 获取图片链接地址
             Elements imageUrls = doc.select("img[id]");
             imageUrls.stream().filter(imageUrl -> "video_jacket_img".equals(imageUrl.attr("id")))
                     .forEach(imageUrl -> libWebInfo.setImageUrl(imageUrl.attr("src")));
             // 图片文件
-            File imageFile = new File(IMAGE_ROOT_PATH + libWebInfo.getNumber() + ".jpg");
+            File imageFile = new File(IMAGE_ROOT_PATH + libWebInfo.getNo() + ".jpg");
             if (!imageFile.exists()) {
                 CommonUtil.downloadImage(libWebInfo.getImageUrl(), imageFile.toString());
             }
@@ -200,7 +205,7 @@ public class LibWebConnect {
                 if (libWebInfo.getTile() != null) {
                     libWebInfoSet.add(libWebInfo);
                 }
-                return libWebInfo.getNumber();
+                return libWebInfo.getNo();
             });
             futureList.add(submit);
 

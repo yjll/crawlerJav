@@ -1,25 +1,25 @@
 import dto.LibWebInfo;
-import service.LibWebService;
-import util.CommonUtil;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import pipeline.LibWebService;
 import service.LibWebConnect;
-import util.PropertyUtil;
+import util.CommonUtil;
 
 import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
-import util.Count;
 
 import static util.Count.LIB_URL_SET_PATH;
-import static util.Count.LIB_WEB_INFO_SET_PATH;
 
 public class LibMain {
 
-
+    static Log logger = LogFactory.getLog(LibMain.class);
 
     public static void main(String[] args) throws Exception {
+        logger.info("===Start===");
         // 链接列表
-        Set<String> webLibUrlSet ;
+        Set<String> webLibUrlSet;
         // 本地链接列表
         Set<String> localLibUrlSet = new HashSet<>();
         // 最近更新的链接列表
@@ -38,7 +38,7 @@ public class LibMain {
             localLibUrlSet = (Set<String>) CommonUtil.getObject(LIB_URL_SET_PATH);
             for (String url : webLibUrlSet) {
                 if (!localLibUrlSet.contains(url)) {
-                    System.out.println("更新链接" + url);
+                    logger.info("更新链接" + url);
                     newLibUrlSet.add(url);
                 }
             }
@@ -50,14 +50,10 @@ public class LibMain {
         // 将数据存入数据库中
         libWebService.blMain(dbSet);
 
-        // 本地Lib网页信息
-        Set<LibWebInfo> localLibWebInfoSet = (Set<LibWebInfo>) CommonUtil.getObject(LIB_WEB_INFO_SET_PATH);
-        localLibWebInfoSet.addAll(dbSet);
-
-        localLibUrlSet.addAll(dbSet.stream().map(libWebInfo -> libWebInfo.getUrl()).collect(Collectors.toSet()));
+        localLibUrlSet.addAll(dbSet.stream().map(LibWebInfo::getUrl).collect(Collectors.toSet()));
 
         CommonUtil.saveObject(localLibUrlSet, LIB_URL_SET_PATH);
-        CommonUtil.saveObject(localLibWebInfoSet, LIB_WEB_INFO_SET_PATH);
-        System.out.println("===End===");
+
+        logger.info("===End===");
     }
 }

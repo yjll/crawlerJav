@@ -3,18 +3,17 @@
 <mapper namespace="dao.VideoInfoDao">
     <resultMap id="BaseResultMap" type="VideoInfo">
         <id column="no" jdbcType="VARCHAR" property="no"/>
-        <result column="javlib_url" jdbcType="VARCHAR" property="javlibUrl"/>
         <result column="title" jdbcType="VARCHAR" property="title"/>
-        <result column="date" jdbcType="DATE" property="date"/>
-        <result column="duretion" jdbcType="INTEGER" property="duretion"/>
+        <result column="date" jdbcType="VARCHAR" property="date"/>
+        <result column="duration" jdbcType="INTEGER" property="duration"/>
         <result column="rated" jdbcType="REAL" property="rated"/>
         <result column="system_time" jdbcType="TIMESTAMP" property="systemTime"/>
     </resultMap>
     <sql id="Base_Column_List">
-        no, javlib_url, title, date, duretion, rated, system_time
+    no, title, date, duration, rated, system_time
     </sql>
 
-    <select id="selectByNo" parameterType="java.lang.String" resultMap="BaseResultMap">
+    <select id="selectByNo" parameterType="String" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
         from video_info
@@ -32,47 +31,37 @@
             <if test="no != null">
                 no,
             </if>
-            <if test="javlibUrl != null">
-                javlib_url,
-            </if>
             <if test="title != null">
                 title,
             </if>
             <if test="date != null">
                 date,
             </if>
-            <if test="duretion != null">
-                duretion,
+            <if test="duration != null">
+                duration,
             </if>
             <if test="rated != null">
                 rated,
             </if>
-            <if test="systemTime != null">
-                system_time,
-            </if>
+            system_time
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="no != null">
                 #{no,jdbcType=VARCHAR},
             </if>
-            <if test="javlibUrl != null">
-                #{javlibUrl,jdbcType=VARCHAR},
-            </if>
             <if test="title != null">
                 #{title,jdbcType=VARCHAR},
             </if>
             <if test="date != null">
-                #{date,jdbcType=DATE},
+                #{date,jdbcType=VARCHAR},
             </if>
-            <if test="duretion != null">
-                #{duretion,jdbcType=INTEGER},
+            <if test="duration != null">
+                #{duration,jdbcType=INTEGER},
             </if>
             <if test="rated != null">
                 #{rated,jdbcType=REAL},
             </if>
-            <if test="systemTime != null">
-                #{systemTime,jdbcType=TIMESTAMP},
-            </if>
+            now()
         </trim>
     </insert>
 

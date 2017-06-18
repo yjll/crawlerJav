@@ -1,13 +1,11 @@
 package dto;
 
 import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.List;
 
 public class LibWebInfo implements Serializable {
     private String url;
-    private String number;
+    private String no;
 
     private String tile;
 
@@ -31,12 +29,12 @@ public class LibWebInfo implements Serializable {
         this.url = url;
     }
 
-    public String getNumber() {
-        return number;
+    public String getNo() {
+        return no;
     }
 
-    public void setNumber(String number) {
-        this.number = number;
+    public void setNo(String no) {
+        this.no = no;
     }
 
     public String getTile() {
@@ -99,7 +97,7 @@ public class LibWebInfo implements Serializable {
     public String toString() {
         return "LibWebInfo{" +
                 "url='" + url + '\'' +
-                ", number='" + number + '\'' +
+                ", no='" + no + '\'' +
                 ", tile='" + tile + '\'' +
                 ", date='" + date + '\'' +
                 ", duration='" + duration + '\'' +

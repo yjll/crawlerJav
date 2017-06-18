@@ -5,16 +5,13 @@ import java.util.Date;
 public class VideoInfo {
     private String no;
 
-    private String javlibUrl;
-
     private String title;
 
-    private Date date;
+    private String date;
+
+    private Integer duration;
 
     private Float rated;
-
-    private Integer duretion;
-
 
     private Date systemTime;
 
@@ -26,14 +23,6 @@ public class VideoInfo {
         this.no = no == null ? null : no.trim();
     }
 
-    public String getJavlibUrl() {
-        return javlibUrl;
-    }
-
-    public void setJavlibUrl(String javlibUrl) {
-        this.javlibUrl = javlibUrl == null ? null : javlibUrl.trim();
-    }
-
     public String getTitle() {
         return title;
     }
@@ -42,28 +31,20 @@ public class VideoInfo {
         this.title = title == null ? null : title.trim();
     }
 
-    public Date getDate() {
+    public String getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
-        this.date = date;
+    public void setDate(String date) {
+        this.date = date == null ? null : date.trim();
     }
 
-    public Integer getDuretion() {
-        return duretion;
+    public Integer getDuration() {
+        return duration;
     }
 
-    public void setDuretion(Integer duretion) {
-        this.duretion = duretion;
-    }
-
-    public Date getSystemTime() {
-        return systemTime;
-    }
-
-    public void setSystemTime(Date systemTime) {
-        this.systemTime = systemTime;
+    public void setDuration(Integer duration) {
+        this.duration = duration;
     }
 
     public Float getRated() {
@@ -72,5 +53,13 @@ public class VideoInfo {
 
     public void setRated(Float rated) {
         this.rated = rated;
+    }
+
+    public Date getSystemTime() {
+        return systemTime;
+    }
+
+    public void setSystemTime(Date systemTime) {
+        this.systemTime = systemTime;
     }
 }
