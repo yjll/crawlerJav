@@ -17,7 +17,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static util.Count.*;
+import static util.Const.*;
 
 public class LibWebConnect {
 

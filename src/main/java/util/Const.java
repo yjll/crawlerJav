@@ -3,7 +3,7 @@ package util;
 /**
  * Created by PC on 6/16/2017.
  */
-public class Count {
+public class Const {
     // 网址
     public static final String LIB_URL = PropertyUtil.getProperty("LIB_URL");
     // 根据评分排名URL
