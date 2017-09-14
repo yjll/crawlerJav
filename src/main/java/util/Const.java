@@ -16,6 +16,4 @@ public class Const {
     public static final String IMAGE_ROOT_PATH = PropertyUtil.getProperty("IMAGE_ROOT_PATH");
     // Lib链接本地存储路径
     public static final String LIB_URL_SET_PATH = PropertyUtil.getProperty("LIB_URL_SET_PATH");
-    // Lib网页信息本地存储路径
-    public static final String LIB_WEB_INFO_SET_PATH = PropertyUtil.getProperty("LIB_WEB_INFO_SET_PATH");
 }

@@ -10,7 +10,7 @@ public class PropertyUtil {
 
     static {
         properties = new Properties();
-        InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream("data/crawlerJav.ini");
+        InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream("crawlerJav.ini");
         try {
             properties.load(in);
             in.close();
