@@ -3,9 +3,9 @@ package utilTest;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -13,6 +13,8 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.junit.Test;
+import retrofit2.Call;
+import retrofit2.Retrofit;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -77,5 +79,17 @@ public class HTTPClientTest {
         Response response= client.newCall(request).execute();//得到Response 对象
         System.out.println(response.body().string());
 
+    }
+
+    @Test
+    public void retrofitTest() throws IOException {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("http://gw.api.taobao.com/router/rest/")
+                .build();
+        GetRequestInterface getRequestInterface = retrofit.create(GetRequestInterface.class);
+
+        Call<ResponseBody> call = getRequestInterface.getCall("http://www.baidu.com/s","fff");
+        System.out.println(call.request());
+//        System.out.println(call.execute().body().string());
     }
 }

@@ -3,11 +3,8 @@ package utilTest;
 import dao.SessionFactory;
 import dao.VideoInfoDao;
 import org.apache.ibatis.session.SqlSession;
-import org.junit.Assert;
 import org.junit.Test;
-import util.Const;
 
-import java.io.File;
 import java.util.List;
 
 import static util.Const.IMAGE_ROOT_PATH;
