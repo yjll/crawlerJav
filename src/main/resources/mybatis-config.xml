@@ -15,7 +15,7 @@
             <transactionManager type="JDBC" />
             <dataSource type="POOLED">
                 <property name="driver" value="org.sqlite.JDBC" />
-                <property name="url" value="jdbc:sqlite:../data/jav.db" />
+                <property name="url" value="jdbc:sqlite:jav.db" />
             </dataSource>
         </environment>
     </environments>
