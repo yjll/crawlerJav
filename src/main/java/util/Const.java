@@ -1,5 +1,7 @@
 package util;
 
+import java.lang.reflect.Field;
+
 /**
  * Created by PC on 6/16/2017.
  */
@@ -12,8 +14,7 @@ public class Const {
     public static final String SEARCH_BY_NO = LIB_URL + PropertyUtil.getProperty("SEARCH_BY_NO");
     // 网站英文名称
     public static final String LIB_NAME = PropertyUtil.getProperty("LIB_NAME");
-    // 本地图片root目录
-    public static final String IMAGE_ROOT_PATH = PropertyUtil.getProperty("IMAGE_ROOT_PATH");
-    // Lib链接本地存储路径
-    public static final String LIB_URL_SET_PATH = PropertyUtil.getProperty("LIB_URL_SET_PATH");
+
+    private Const() {
+    }
 }

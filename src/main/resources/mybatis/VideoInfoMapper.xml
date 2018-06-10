@@ -1,68 +1,119 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="dao.VideoInfoDao">
-    <resultMap id="BaseResultMap" type="VideoInfo">
-        <id column="no" jdbcType="VARCHAR" property="no"/>
-        <result column="title" jdbcType="VARCHAR" property="title"/>
-        <result column="date" jdbcType="VARCHAR" property="date"/>
-        <result column="duration" jdbcType="INTEGER" property="duration"/>
-        <result column="rated" jdbcType="REAL" property="rated"/>
-        <result column="system_time" jdbcType="TIMESTAMP" property="systemTime"/>
-    </resultMap>
-    <sql id="Base_Column_List">
-    no, title, date, duration, rated, system_time
-    </sql>
+<mapper namespace="dao.VideoInfoMapper">
+  <resultMap id="BaseResultMap" type="model.VideoInfo">
+    <id column="no" jdbcType="VARCHAR" property="no" />
+    <result column="title" jdbcType="VARCHAR" property="title" />
+    <result column="date" jdbcType="VARCHAR" property="date" />
+    <result column="duration" jdbcType="INTEGER" property="duration" />
+    <result column="rated" jdbcType="FLOAT" property="rated" />
+    <result column="system_time" jdbcType="VARCHAR" property="systemTime" />
+    <result column="image" jdbcType="VARCHAR" property="image" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    no, title, date, duration, rated, system_time, image
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from video_info
+    where no = #{no,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from video_info
+    where no = #{no,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="model.VideoInfo">
+    insert into video_info (no, title, date, 
+      duration, rated, system_time, 
+      image)
+    values (#{no,jdbcType=VARCHAR}, #{title,jdbcType=VARCHAR}, #{date,jdbcType=VARCHAR}, 
+      #{duration,jdbcType=INTEGER}, #{rated,jdbcType=FLOAT}, #{systemTime,jdbcType=VARCHAR}, 
+      #{image,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="model.VideoInfo">
+    insert into video_info
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="no != null">
+        no,
+      </if>
+      <if test="title != null">
+        title,
+      </if>
+      <if test="date != null">
+        date,
+      </if>
+      <if test="duration != null">
+        duration,
+      </if>
+      <if test="rated != null">
+        rated,
+      </if>
+        system_time,
+      <if test="image != null">
+        image,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="no != null">
+        #{no,jdbcType=VARCHAR},
+      </if>
+      <if test="title != null">
+        #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="date != null">
+        #{date,jdbcType=VARCHAR},
+      </if>
+      <if test="duration != null">
+        #{duration,jdbcType=INTEGER},
+      </if>
+      <if test="rated != null">
+        #{rated,jdbcType=FLOAT},
+      </if>
+        now(),
+      <if test="image != null">
+        #{image,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="model.VideoInfo">
+    update video_info
+    <set>
+      <if test="title != null">
+        title = #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="date != null">
+        date = #{date,jdbcType=VARCHAR},
+      </if>
+      <if test="duration != null">
+        duration = #{duration,jdbcType=INTEGER},
+      </if>
+      <if test="rated != null">
+        rated = #{rated,jdbcType=FLOAT},
+      </if>
+      <if test="systemTime != null">
+        system_time = #{systemTime,jdbcType=VARCHAR},
+      </if>
+      <if test="image != null">
+        image = #{image,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where no = #{no,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="model.VideoInfo">
+    update video_info
+    set title = #{title,jdbcType=VARCHAR},
+      date = #{date,jdbcType=VARCHAR},
+      duration = #{duration,jdbcType=INTEGER},
+      rated = #{rated,jdbcType=FLOAT},
+      system_time = #{systemTime,jdbcType=VARCHAR},
+      image = #{image,jdbcType=VARCHAR}
+    where no = #{no,jdbcType=VARCHAR}
+  </update>
 
-    <select id="selectByNo" parameterType="String" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
-        from video_info
-        where no = #{no,jdbcType=VARCHAR}
-    </select>
-
-    <select id="findNoList" resultType="String">
-        select no from video_info
-    </select>
-
-
-    <insert id="insert" parameterType="VideoInfo">
-        insert into video_info
-        <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="no != null">
-                no,
-            </if>
-            <if test="title != null">
-                title,
-            </if>
-            <if test="date != null">
-                date,
-            </if>
-            <if test="duration != null">
-                duration,
-            </if>
-            <if test="rated != null">
-                rated,
-            </if>
-            system_time
-        </trim>
-        <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="no != null">
-                #{no,jdbcType=VARCHAR},
-            </if>
-            <if test="title != null">
-                #{title,jdbcType=VARCHAR},
-            </if>
-            <if test="date != null">
-                #{date,jdbcType=VARCHAR},
-            </if>
-            <if test="duration != null">
-                #{duration,jdbcType=INTEGER},
-            </if>
-            <if test="rated != null">
-                #{rated,jdbcType=REAL},
-            </if>
-            now()
-        </trim>
-    </insert>
-
+  <select id="findAll" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from video_info
+  </select>
 </mapper>

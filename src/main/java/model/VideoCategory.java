@@ -1,4 +1,4 @@
-package dto;
+package model;
 
 public class VideoCategory {
     private String category;

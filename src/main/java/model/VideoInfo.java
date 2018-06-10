@@ -1,6 +1,4 @@
-package dto;
-
-import java.util.Date;
+package model;
 
 public class VideoInfo {
     private String no;
@@ -11,9 +9,11 @@ public class VideoInfo {
 
     private Integer duration;
 
-    private Float rated;
+    private Double rated;
 
-    private Date systemTime;
+    private String systemTime;
+
+    private String image;
 
     public String getNo() {
         return no;
@@ -47,19 +47,27 @@ public class VideoInfo {
         this.duration = duration;
     }
 
-    public Float getRated() {
+    public Double getRated() {
         return rated;
     }
 
-    public void setRated(Float rated) {
+    public void setRated(Double rated) {
         this.rated = rated;
     }
 
-    public Date getSystemTime() {
+    public String getSystemTime() {
         return systemTime;
     }
 
-    public void setSystemTime(Date systemTime) {
-        this.systemTime = systemTime;
+    public void setSystemTime(String systemTime) {
+        this.systemTime = systemTime == null ? null : systemTime.trim();
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image == null ? null : image.trim();
     }
 }

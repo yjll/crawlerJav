@@ -9,6 +9,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import util.CommonUtil;
 
+import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
 
 import static util.Const.*;
 
+@Singleton
 public class LibWebConnect {
 
     private Log logger = LogFactory.getLog(this.getClass());
@@ -110,19 +112,14 @@ public class LibWebConnect {
         LibWebInfo libWebInfo = new LibWebInfo();
         try {
             Document doc = Jsoup.connect(libUrl).userAgent("Mozilla").timeout(5 * 1000).get();
-            libWebInfo.setUrl(libUrl.substring(libUrl.lastIndexOf("/") + 1));
+//            libWebInfo.setUrl(libUrl.substring(libUrl.lastIndexOf("/") + 1));
             libWebInfo.setNo(doc.title().trim().split(" ")[0]);
             // 获取图片链接地址
             Elements imageUrls = doc.select("img[id]");
             imageUrls.stream().filter(imageUrl -> "video_jacket_img".equals(imageUrl.attr("id")))
                     .forEach(imageUrl -> libWebInfo.setImageUrl(imageUrl.attr("src")));
-            // 图片文件
-            File imageFile = new File(IMAGE_ROOT_PATH + libWebInfo.getNo() + ".jpg");
-            if (!imageFile.exists()) {
-                CommonUtil.downloadImage(libWebInfo.getImageUrl(), imageFile.toString());
-            }
 
-            libWebInfo.setTile((doc.title().replace(LIB_NAME, "").trim()));
+            libWebInfo.setTitle((doc.title().replace(LIB_NAME, "").trim()));
             // 评分
             String rated = doc.select("span.score").get(0).text();
             Pattern pattern = Pattern.compile("\\d*\\.\\d*");
@@ -202,7 +199,7 @@ public class LibWebConnect {
         for (String libUrlStr : libUrlSet) {
             Future<String> submit = fixedThreadPool.submit(() -> {
                 LibWebInfo libWebInfo = analysis(LIB_URL + libUrlStr);
-                if (libWebInfo.getTile() != null) {
+                if (libWebInfo.getTitle() != null) {
                     libWebInfoSet.add(libWebInfo);
                 }
                 return libWebInfo.getNo();
@@ -241,7 +238,7 @@ public class LibWebConnect {
         for (String libUrlStr : libUrlSet) {
             System.out.println(libUrlStr);
             LibWebInfo libWebInfo = analysis(libUrlStr);
-            if (libWebInfo.getTile() != null) {
+            if (libWebInfo.getTitle() != null) {
                 libWebInfoSet.add(libWebInfo);
             }
         }
