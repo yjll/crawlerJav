@@ -4,7 +4,7 @@ import com.google.inject.Guice;
 import config.BindConfig;
 import dto.LibWebInfo;
 import org.junit.Test;
-import pipeline.LibInfoService;
+import pipeline.LibInfoPipeline;
 
 /**
  * @author: zijing
@@ -15,7 +15,7 @@ public class MapStructTest {
     @Test
     public void test(){
 
-        LibInfoService instance = Guice.createInjector(new BindConfig()).getInstance(LibInfoService.class);
+        LibInfoPipeline instance = Guice.createInjector(new BindConfig()).getInstance(LibInfoPipeline.class);
         LibWebInfo libWebInfo = instance.getLibWebInfo("SOE-121");
     }
 

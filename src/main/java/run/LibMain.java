@@ -3,8 +3,8 @@ package run;
 import dto.LibWebInfo;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import pipeline.LibInfoService;
-import service.LibWebConnect;
+import pipeline.LibInfoPipeline;
+import processor.LibWebProcessor;
 
 import javax.inject.Inject;
 import java.lang.reflect.InvocationTargetException;
@@ -14,7 +14,10 @@ import java.util.Set;
 public class LibMain {
 
     @Inject
-    LibWebConnect libWebConnect;
+    LibWebProcessor libWebProcessor;
+
+    @Inject
+    LibInfoPipeline libInfoPipeline;
 
     static Log logger = LogFactory.getLog(LibMain.class);
 
@@ -30,12 +33,10 @@ public class LibMain {
 
     private  void saveTop() throws InvocationTargetException, IllegalAccessException, SQLException {
         // 从Web获取链接列表
-        Set<String> webLibUrlSet = libWebConnect.getTopLibUrlSet();
+        Set<String> webLibUrlSet = libWebProcessor.getTopLibUrlSet();
 
-        LibInfoService libInfoService = new LibInfoService();
-
-        Set<LibWebInfo> dbSet = libWebConnect.getDbSet(webLibUrlSet);
+        Set<LibWebInfo> dbSet = libWebProcessor.getDbSet(webLibUrlSet);
         // 将数据存入数据库中
-        libInfoService.blMain(dbSet);
+        libInfoPipeline.save(dbSet);
     }
 }

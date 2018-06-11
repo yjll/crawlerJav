@@ -14,6 +14,7 @@ import config.ModelMapper;
 import util.SessionFactory;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLException;
 import java.util.List;
@@ -23,7 +24,8 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class LibInfoService {
+@Singleton
+public class LibInfoPipeline {
 
     private Log logger = LogFactory.getLog(this.getClass());
 
@@ -39,7 +41,7 @@ public class LibInfoService {
     private VideoActorMapper videoActorDao = sqlSession.getMapper(VideoActorMapper.class);
 
 
-    public void blMain(Set<LibWebInfo> libWebInfoSet) throws InvocationTargetException, IllegalAccessException, SQLException {
+    public void save(Set<LibWebInfo> libWebInfoSet){
 
         // 取全部影片信息
         List<VideoInfo> allVideo = videoInfoDao.findAll();
@@ -48,7 +50,7 @@ public class LibInfoService {
 
         for (LibWebInfo libWebInfo : libWebInfoSet) {
             try {
-                saveWebInfo(videoInfoMap, libWebInfo);
+                saveVideoInfo(videoInfoMap, libWebInfo);
 
                 sqlSession.commit();
             } catch (Exception e) {
@@ -60,7 +62,7 @@ public class LibInfoService {
         logger.info("数据更新成功...");
     }
 
-    private void saveWebInfo(Map<String, VideoInfo> videoInfoMap, LibWebInfo libWebInfo) {
+    private void saveVideoInfo(Map<String, VideoInfo> videoInfoMap, LibWebInfo libWebInfo) {
         // 根据no判断在否存在
         VideoInfo dbVideo = videoInfoMap.get(libWebInfo.getNo());
 
@@ -88,6 +90,11 @@ public class LibInfoService {
         }
     }
 
+    /**
+     * 根据No获取影片信息
+     * @param no
+     * @return
+     */
     public LibWebInfo getLibWebInfo(String no){
 
         VideoInfo videoInfo = videoInfoDao.selectByPrimaryKey(no);
@@ -96,11 +103,6 @@ public class LibInfoService {
         List<String> videoActorList = videoActorDao.findVideoActor(no);
         libWebInfo.setActorList(videoActorList);
         libWebInfo.setCategoryList(videoCategoryList);
-        System.out.println(libWebInfo);
-
-
-//        List<VideoActor> videoActors = modelMapper.libWebInfoToVideoActor(libWebInfo);
-//        System.out.println(videoActors);
         return libWebInfo;
     }
 

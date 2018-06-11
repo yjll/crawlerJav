@@ -1,4 +1,4 @@
-package service;
+package processor;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class BusWebConnect {
+public class BusWebProcessor {
 
     /**
      * 获取列表页面的所有链接

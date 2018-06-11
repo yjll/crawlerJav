@@ -1,4 +1,4 @@
-package service;
+package processor;
 
 import dto.LibWebInfo;
 import org.apache.commons.logging.Log;
@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 import static util.Const.*;
 
 @Singleton
-public class LibWebConnect {
+public class LibWebProcessor {
 
     private Log logger = LogFactory.getLog(this.getClass());
 
