@@ -26,7 +26,7 @@ public class LibInfoMarkdownPipeline {
         for (LibWebInfo libWebInfo : libWebInfos) {
             stringBuilder.append(this.format(libWebInfo));
         }
-        log.info(stringBuilder.toString());
+        log.info("\n" + stringBuilder.toString());
     }
 
     private String format(LibWebInfo libWebInfo){

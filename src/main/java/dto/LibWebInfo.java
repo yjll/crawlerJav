@@ -1,6 +1,7 @@
 package dto;
 
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
 import java.util.List;
@@ -25,5 +26,12 @@ public class LibWebInfo implements Serializable {
     private List<String> actorList;
 
     private String imageUrl;
+
+    public String getRated(){
+        return StringUtils.isNotBlank(rated)?rated:"0";
+    }
+
+
+
 
 }

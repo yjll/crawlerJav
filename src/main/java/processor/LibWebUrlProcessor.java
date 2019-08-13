@@ -3,8 +3,10 @@ package processor;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import processor.base.PageProcessor;
+import util.Const;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -32,13 +34,23 @@ public class LibWebUrlProcessor implements PageProcessor<Collection<String>> {
     @Override
     public Collection<String> process(String url) throws IOException {
 
+        log.info("get-url:" + Const.LIB_URL + url);
         // 解析详情页url
-        Document doc = Jsoup.connect(url).userAgent("Mozilla").timeout(5 * 1000).get();
+        Document doc = Jsoup.connect(Const.LIB_URL + url).userAgent("Mozilla").timeout(5 * 1000).get();
 
         // 获取所有链接
         Elements links = doc.select("a[href]");
 
-        // TODO 解析地址查找下一页
+        for (Element element : links) {
+            if ("下一页".equals(element.text())) {
+                try {
+                    urlListQueue.put(element.attr("href").substring(4));
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                break;
+            }
+        }
 
         // 详情页地址
         return links.stream()
@@ -62,7 +74,7 @@ public class LibWebUrlProcessor implements PageProcessor<Collection<String>> {
                     try {
                         process = this.process(listUrl);
                     } catch (IOException e) {
-                        log.error(e.toString(), e);
+//                        log.error(Const.LIB_URL + listUrl, e);
                         urlListQueue.put(listUrl);
                     }
                     if (Objects.nonNull(process)) {
@@ -76,6 +88,5 @@ public class LibWebUrlProcessor implements PageProcessor<Collection<String>> {
             }
         }).start();
     }
-
 
 }

@@ -1,5 +1,6 @@
 package processor;
 
+import com.google.common.collect.Iterables;
 import dto.LibWebInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
@@ -7,6 +8,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import processor.base.PageProcessor;
+import util.Const;
 
 import java.io.IOException;
 import java.util.List;
@@ -33,7 +35,7 @@ public class LibWebInfoProcessor implements PageProcessor<LibWebInfo> {
 
     private List<LibWebInfo> libWebInfos;
 
-    private ExecutorService fixedThreadPool = Executors.newFixedThreadPool(10);
+    private ExecutorService fixedThreadPool = Executors.newFixedThreadPool(100);
 
     public LibWebInfoProcessor(BlockingQueue<String> urlQueue, List<LibWebInfo> libWebInfos) {
         this.urlQueue = urlQueue;
@@ -42,22 +44,28 @@ public class LibWebInfoProcessor implements PageProcessor<LibWebInfo> {
 
     @Override
     public LibWebInfo process(String url) throws IOException {
+
+//        log.info("get-url:" + Const.LIB_URL + url);
+
         LibWebInfo libWebInfo = new LibWebInfo();
-        Document doc = Jsoup.connect(url).userAgent("Mozilla").timeout(5 * 1000).get();
+        Document doc = Jsoup.connect(Const.LIB_URL + url).userAgent("Mozilla").timeout(5 * 1000).get();
 //            libWebInfo.setUrl(libUrl.substring(libUrl.lastIndexOf("/") + 1));
         libWebInfo.setNo(doc.title().trim().split(" ")[0]);
+        libWebInfo.setUrl(Const.LIB_URL + url);
         // 获取图片链接地址
         Elements imageUrls = doc.select("img[id]");
         imageUrls.stream().filter(imageUrl -> "video_jacket_img".equals(imageUrl.attr("id")))
-                .forEach(imageUrl -> libWebInfo.setImageUrl(imageUrl.attr("src")));
+                .forEach(imageUrl -> libWebInfo.setImageUrl("http://" + imageUrl.attr("src").substring(2)));
 
         libWebInfo.setTitle((doc.title().replace(LIB_NAME, "").trim()));
         // 评分
-        String rated = doc.select("span.score").get(0).text();
-        Pattern pattern = Pattern.compile("\\d*\\.\\d*");
-        Matcher matcher = pattern.matcher(rated);
-        if (matcher.find()) {
-            libWebInfo.setRated(matcher.group());
+        if (!doc.select("span.score").isEmpty()) {
+            String rated = doc.select("span.score").get(0).text();
+            Pattern pattern = Pattern.compile("\\d*\\.\\d*");
+            Matcher matcher = pattern.matcher(rated);
+            if (matcher.find()) {
+                libWebInfo.setRated(matcher.group());
+            }
         }
         // 时长
         libWebInfo.setDuration(doc.select("span.text").text());
@@ -96,20 +104,17 @@ public class LibWebInfoProcessor implements PageProcessor<LibWebInfo> {
                 try {
                     take = urlQueue.take();
                 } catch (InterruptedException e) {
-                    log.error(e.toString(),e);
+                    log.error(e.toString(), e);
                     continue;
                 }
-                String finalTake = take;
                 fixedThreadPool.submit(() -> {
                     try {
                         try {
-                            LibWebInfo libWebInfo = this.process(finalTake);
-                            if (Objects.nonNull(libWebInfo)) {
-                                libWebInfos.add(libWebInfo);
-                            }
+                            LibWebInfo libWebInfo = this.process(take);
+                            libWebInfos.add(libWebInfo);
                         } catch (IOException e) {
-                            log.error(e.toString(), e);
-                            urlQueue.put(finalTake);
+//                            log.error(Const.LIB_URL+finalTake, e);
+                            urlQueue.put(take);
                         }
                     } catch (InterruptedException e) {
                         log.error(e.toString(), e);
@@ -119,7 +124,7 @@ public class LibWebInfoProcessor implements PageProcessor<LibWebInfo> {
         }).start();
     }
 
-    public boolean isFinished(){
+    public boolean isFinished() {
         ThreadPoolExecutor pool = (ThreadPoolExecutor) this.fixedThreadPool;
         return pool.getQueue().size() == 0 && pool.getActiveCount() == 0;
     }

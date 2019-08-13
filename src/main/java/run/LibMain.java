@@ -9,6 +9,7 @@ import pipeline.LibInfoMarkdownPipeline;
 import pipeline.LibInfoPipeline;
 import processor.LibWebInfoProcessor;
 import processor.LibWebUrlProcessor;
+import util.Const;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -30,8 +31,8 @@ public class LibMain {
     public static void main(String[] args) throws Exception {
         log.info("===Start===");
 
-        String indexUrl = "";
-        Predicate<LibWebInfo> predicate = libWebInfo -> libWebInfo.getTitle().contains("");
+        String indexUrl = "".replace(Const.LIB_URL,"");
+        Predicate<LibWebInfo> predicate = libWebInfo -> !libWebInfo.getTitle().contains("");
 
         Injector injector = Guice.createInjector(new BindConfig());
         LibMain instance = injector.getInstance(LibMain.class);
@@ -65,9 +66,9 @@ public class LibMain {
             if (urlListQueue.isEmpty() && urlQueue.isEmpty() && libWebInfoProcessor.isFinished()) {
 
                 libInfoMarkdownPipeline.process(libWebInfoResult,predicate);
-
+//                    libWebInfoResult.forEach(e -> log.info(e.getNo()));
                 // 将数据存入数据库中
-                libInfoPipeline.save(libWebInfoResult);
+//                libInfoPipeline.save(libWebInfoResult);
 
                 break;
             }
