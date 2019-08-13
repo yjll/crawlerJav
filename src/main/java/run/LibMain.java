@@ -1,42 +1,77 @@
 package run;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import config.BindConfig;
 import dto.LibWebInfo;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
+import pipeline.LibInfoMarkdownPipeline;
 import pipeline.LibInfoPipeline;
-import processor.LibWebProcessor;
+import processor.LibWebInfoProcessor;
+import processor.LibWebUrlProcessor;
 
 import javax.inject.Inject;
-import java.lang.reflect.InvocationTargetException;
-import java.sql.SQLException;
-import java.util.Set;
+import javax.inject.Singleton;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Predicate;
 
+@Slf4j
+@Singleton
 public class LibMain {
-
-    @Inject
-    LibWebProcessor libWebProcessor;
 
     @Inject
     LibInfoPipeline libInfoPipeline;
 
-    static Log logger = LogFactory.getLog(LibMain.class);
+    @Inject
+    LibInfoMarkdownPipeline libInfoMarkdownPipeline;
 
     public static void main(String[] args) throws Exception {
-        logger.info("===Start===");
-        // 链接列表
-        LibMain libMain = new LibMain();
-        libMain.saveTop();
+        log.info("===Start===");
 
+        String indexUrl = "";
+        Predicate<LibWebInfo> predicate = libWebInfo -> libWebInfo.getTitle().contains("");
 
-        logger.info("===End===");
+        Injector injector = Guice.createInjector(new BindConfig());
+        LibMain instance = injector.getInstance(LibMain.class);
+        instance.run(indexUrl,predicate);
+
+        log.info("===End===");
     }
 
-    private  void saveTop() throws InvocationTargetException, IllegalAccessException, SQLException {
-        // 从Web获取链接列表
-        Set<String> webLibUrlSet = libWebProcessor.getTopLibUrlSet();
+    private void run(String url,Predicate<LibWebInfo> predicate) throws InterruptedException {
+        BlockingQueue<String> urlListQueue = new ArrayBlockingQueue<>(1024);
+        BlockingQueue<String> urlQueue = new ArrayBlockingQueue<>(1024);
+        // 爬虫起点
+        urlListQueue.put(url);
+        // 爬取列表
+        LibWebUrlProcessor libWebUrlProcessor = new LibWebUrlProcessor(urlListQueue, urlQueue);
+        // 爬取结果
+        CopyOnWriteArrayList<LibWebInfo> libWebInfoResult = new CopyOnWriteArrayList<>();
+        // 爬取目标信息
+        LibWebInfoProcessor libWebInfoProcessor = new LibWebInfoProcessor(urlQueue, libWebInfoResult);
 
-        Set<LibWebInfo> dbSet = libWebProcessor.getDbSet(webLibUrlSet);
-        // 将数据存入数据库中
-        libInfoPipeline.save(dbSet);
+        // 爬取详情页,获取url
+        libWebUrlProcessor.onTask();
+
+        // 监听队列,爬取详情信息
+        libWebInfoProcessor.onTask();
+
+        while (true) {
+            // 让子弹飞一会
+            Thread.sleep(10_000L);
+            // 任务已完成
+            if (urlListQueue.isEmpty() && urlQueue.isEmpty() && libWebInfoProcessor.isFinished()) {
+
+                libInfoMarkdownPipeline.process(libWebInfoResult,predicate);
+
+                // 将数据存入数据库中
+                libInfoPipeline.save(libWebInfoResult);
+
+                break;
+            }
+            log.info("任务未完成...");
+        }
     }
 }

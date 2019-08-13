@@ -6,6 +6,7 @@ import java.io.Serializable;
 import java.util.List;
 @Data
 public class LibWebInfo implements Serializable {
+
     private String url;
     private String no;
 
@@ -14,7 +15,9 @@ public class LibWebInfo implements Serializable {
     private String date;
 
     private String duration;
-
+    /**
+     * 评分
+     */
     private String rated;
 
     private List<String> categoryList;
@@ -22,4 +25,5 @@ public class LibWebInfo implements Serializable {
     private List<String> actorList;
 
     private String imageUrl;
+
 }

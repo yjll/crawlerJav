@@ -1,33 +1,26 @@
 package pipeline;
 
+import config.ModelMapper;
 import dao.VideoActorMapper;
 import dao.VideoCategoryMapper;
 import dao.VideoInfoMapper;
 import dto.LibWebInfo;
+import lombok.extern.slf4j.Slf4j;
 import model.VideoActor;
 import model.VideoCategory;
 import model.VideoInfo;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.ibatis.session.SqlSession;
-import config.ModelMapper;
 import util.SessionFactory;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.lang.reflect.InvocationTargetException;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Singleton
+@Slf4j
 public class LibInfoPipeline {
-
-    private Log logger = LogFactory.getLog(this.getClass());
 
     @Inject
     private ModelMapper modelMapper;
@@ -41,7 +34,7 @@ public class LibInfoPipeline {
     private VideoActorMapper videoActorDao = sqlSession.getMapper(VideoActorMapper.class);
 
 
-    public void save(Set<LibWebInfo> libWebInfoSet){
+    public void save(Collection<LibWebInfo> libWebInfoSet){
 
         // 取全部影片信息
         List<VideoInfo> allVideo = videoInfoDao.findAll();
@@ -55,11 +48,11 @@ public class LibInfoPipeline {
                 sqlSession.commit();
             } catch (Exception e) {
                 sqlSession.rollback();
-                logger.error(e.toString(), e);
+                log.error(e.toString(), e);
             }
         }
 
-        logger.info("数据更新成功...");
+        log.info("数据更新成功...");
     }
 
     private void saveVideoInfo(Map<String, VideoInfo> videoInfoMap, LibWebInfo libWebInfo) {

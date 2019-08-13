@@ -1,50 +1,26 @@
 package processor;
 
 import dto.LibWebInfo;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import util.CommonUtil;
 
-import javax.inject.Singleton;
-import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static util.Const.*;
+import static util.Const.LIB_URL;
+import static util.Const.SEARCH_BY_NO;
 
-@Singleton
+@Slf4j
 public class LibWebProcessor {
-
-    private Log logger = LogFactory.getLog(this.getClass());
 
 
     // 收集超时链接
-    public Set<String> failLibSet = Collections.synchronizedSet(new HashSet<>());
-
-    /**
-     * 获取高分链接
-     *
-     * @return webUrlSet
-     * @throws IOException
-     */
-    public Set<String> getTopLibUrlSet() {
-        logger.info("获取高分链接");
-        logger.info("===Start===");
-        Set<String> webUrlSet = new HashSet<>();
-        for (int i = 1; i <= 25; i++) {
-            webUrlSet.addAll(getUrlSet(BEST_RATED + i));
-        }
-        logger.info("===End===");
-        return webUrlSet;
-    }
+    public Set<String> failLibSet = new CopyOnWriteArraySet<>();
 
     /**
      * 根据No查询出真实的链接
@@ -110,51 +86,51 @@ public class LibWebProcessor {
      */
     private LibWebInfo analysis(String libUrl) {
         LibWebInfo libWebInfo = new LibWebInfo();
-        try {
-            Document doc = Jsoup.connect(libUrl).userAgent("Mozilla").timeout(5 * 1000).get();
-//            libWebInfo.setUrl(libUrl.substring(libUrl.lastIndexOf("/") + 1));
-            libWebInfo.setNo(doc.title().trim().split(" ")[0]);
-            // 获取图片链接地址
-            Elements imageUrls = doc.select("img[id]");
-            imageUrls.stream().filter(imageUrl -> "video_jacket_img".equals(imageUrl.attr("id")))
-                    .forEach(imageUrl -> libWebInfo.setImageUrl(imageUrl.attr("src")));
-
-            libWebInfo.setTitle((doc.title().replace(LIB_NAME, "").trim()));
-            // 评分
-            String rated = doc.select("span.score").get(0).text();
-            Pattern pattern = Pattern.compile("\\d*\\.\\d*");
-            Matcher matcher = pattern.matcher(rated);
-            if (matcher.find()) {
-                libWebInfo.setRated(matcher.group());
-            }
-            // 时长
-            libWebInfo.setDuration(doc.select("span.text").text());
-
-            // 日期
-            Elements texts = doc.select("td.text");
-            texts.stream().filter(text -> Pattern.matches("\\d{4}-\\d{2}-\\d{2}", text.text()))
-                    .forEach(text -> libWebInfo.setDate(text.text()));
-
-            // 类别
-            Elements as = doc.select("a[rel]");
-            List<String> categoryList = as.stream()
-                    .filter(a -> "category tag".equals(a.attr("rel")))
-                    .map(Element::text)
-                    .collect(Collectors.toList());
-            libWebInfo.setCategoryList(categoryList);
-
-            // 演员
-            Elements actors = doc.select("a[href]");
-            List<String> actorList = actors.stream()
-                    .filter(actor -> actor.attr("href").startsWith("vl_star"))
-                    .map(Element::text)
-                    .collect(Collectors.toList());
-            libWebInfo.setActorList(actorList);
-
-        } catch (IOException e) {
-            System.out.println(libUrl + " Time Out");
-            failLibSet.add(libUrl);
-        }
+//        try {
+//            Document doc = Jsoup.connect(libUrl).userAgent("Mozilla").timeout(5 * 1000).get();
+////            libWebInfo.setUrl(libUrl.substring(libUrl.lastIndexOf("/") + 1));
+//            libWebInfo.setNo(doc.title().trim().split(" ")[0]);
+//            // 获取图片链接地址
+//            Elements imageUrls = doc.select("img[id]");
+//            imageUrls.stream().filter(imageUrl -> "video_jacket_img".equals(imageUrl.attr("id")))
+//                    .forEach(imageUrl -> libWebInfo.setImageUrl(imageUrl.attr("src")));
+//
+//            libWebInfo.setTitle((doc.title().replace(LIB_NAME, "").trim()));
+//            // 评分
+//            String rated = doc.select("span.score").get(0).text();
+//            Pattern pattern = Pattern.compile("\\d*\\.\\d*");
+//            Matcher matcher = pattern.matcher(rated);
+//            if (matcher.find()) {
+//                libWebInfo.setRated(matcher.group());
+//            }
+//            // 时长
+//            libWebInfo.setDuration(doc.select("span.text").text());
+//
+//            // 日期
+//            Elements texts = doc.select("td.text");
+//            texts.stream().filter(text -> Pattern.matches("\\d{4}-\\d{2}-\\d{2}", text.text()))
+//                    .forEach(text -> libWebInfo.setDate(text.text()));
+//
+//            // 类别
+//            Elements as = doc.select("a[rel]");
+//            List<String> categoryList = as.stream()
+//                    .filter(a -> "category tag".equals(a.attr("rel")))
+//                    .map(Element::text)
+//                    .collect(Collectors.toList());
+//            libWebInfo.setCategoryList(categoryList);
+//
+//            // 演员
+//            Elements actors = doc.select("a[href]");
+//            List<String> actorList = actors.stream()
+//                    .filter(actor -> actor.attr("href").startsWith("vl_star"))
+//                    .map(Element::text)
+//                    .collect(Collectors.toList());
+//            libWebInfo.setActorList(actorList);
+//
+//        } catch (IOException e) {
+//            System.out.println(libUrl + " Time Out");
+//            failLibSet.add(libUrl);
+//        }
         return libWebInfo;
     }
 
@@ -209,7 +185,7 @@ public class LibWebProcessor {
         }
         // 线程池关闭
         fixedThreadPool.shutdown();
-        // 已爬去完毕的影片番号
+        // 已爬去完毕的影片
         List<String> noList = new ArrayList<>();
         for (Future future : futureList) {
             try {

@@ -10,10 +10,8 @@ import org.mapstruct.factory.Mappers;
  * @date: 2018/6/5 20:28
  * @description:
  */
-@Mapper
+@Mapper()
 public interface ModelMapper {
-
-    ModelMapper INSTANCE = Mappers.getMapper(ModelMapper.class);
 
     VideoInfo libWebInfoToVideoInfo(LibWebInfo libWebInfo);
 
