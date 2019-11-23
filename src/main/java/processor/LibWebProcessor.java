@@ -2,9 +2,9 @@ package processor;
 
 import dto.LibWebInfo;
 import lombok.extern.slf4j.Slf4j;
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
+import util.JsoupUtils;
 
 import java.io.IOException;
 import java.util.*;
@@ -36,7 +36,7 @@ public class LibWebProcessor {
         } else {
             try {
                 for (String s : numbers) {
-                    Document doc = Jsoup.connect(SEARCH_BY_NO + s).userAgent("Mozilla").timeout(5 * 1000).get();
+                    Document doc = JsoupUtils.doGet((SEARCH_BY_NO + s));
                     doc.select("meta[property]").stream()
                             .filter(element -> "og:url".equals(element.attr("property")))
                             .map(element -> element.attr("content"))
@@ -63,7 +63,7 @@ public class LibWebProcessor {
      */
     private Set<String> getUrlSet(String url) {
         try {
-            Document doc = Jsoup.connect(url).userAgent("Mozilla").timeout(5 * 1000).get();
+            Document doc = JsoupUtils.doGet(url);
             // 获取所有链接
             Elements links = doc.select("a[href]");
             return links.stream()

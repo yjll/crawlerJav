@@ -1,12 +1,12 @@
 package processor;
 
 import lombok.extern.slf4j.Slf4j;
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import processor.base.PageProcessor;
 import util.Const;
+import util.JsoupUtils;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -26,6 +26,7 @@ public class LibWebUrlProcessor implements PageProcessor<Collection<String>> {
     private BlockingQueue<String> urlListQueue;
     private BlockingQueue<String> urlQueue;
 
+
     public LibWebUrlProcessor(BlockingQueue<java.lang.String> urlListQueue, BlockingQueue<String> urlQueue) {
         this.urlListQueue = urlListQueue;
         this.urlQueue = urlQueue;
@@ -36,10 +37,12 @@ public class LibWebUrlProcessor implements PageProcessor<Collection<String>> {
 
         log.info("get-url:" + Const.LIB_URL + url);
         // 解析详情页url
-        Document doc = Jsoup.connect(Const.LIB_URL + url).userAgent("Mozilla").timeout(5 * 1000).get();
+        Document doc = JsoupUtils.doGet(Const.LIB_URL + url);
 
         // 获取所有链接
         Elements links = doc.select("a[href]");
+
+
 
         for (Element element : links) {
             if ("下一页".equals(element.text())) {

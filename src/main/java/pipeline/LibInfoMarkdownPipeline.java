@@ -2,6 +2,7 @@ package pipeline;
 
 import dto.LibWebInfo;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.inject.Singleton;
 import java.util.Collections;
@@ -18,7 +19,7 @@ import java.util.function.Predicate;
 @Singleton
 public class LibInfoMarkdownPipeline {
 
-    public void process(List<LibWebInfo> libWebInfos,Predicate<LibWebInfo> filter){
+    public String process(List<LibWebInfo> libWebInfos, Predicate<LibWebInfo> filter){
         libWebInfos.removeIf(filter);
         libWebInfos.sort(Collections.reverseOrder(Comparator.comparing(libWebInfo -> Double.valueOf(libWebInfo.getRated()))));
 
@@ -27,6 +28,7 @@ public class LibInfoMarkdownPipeline {
             stringBuilder.append(this.format(libWebInfo));
         }
         log.info("\n" + stringBuilder.toString());
+        return stringBuilder.toString();
     }
 
     private String format(LibWebInfo libWebInfo){

@@ -1,22 +1,17 @@
 package processor;
 
-import com.google.common.collect.Iterables;
 import dto.LibWebInfo;
 import lombok.extern.slf4j.Slf4j;
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import processor.base.PageProcessor;
 import util.Const;
+import util.JsoupUtils;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -31,11 +26,16 @@ import static util.Const.LIB_NAME;
 @Slf4j
 public class LibWebInfoProcessor implements PageProcessor<LibWebInfo> {
 
+    private static final int  POOL_SIZE = 32;
+
     private BlockingQueue<String> urlQueue;
 
     private List<LibWebInfo> libWebInfos;
 
-    private ExecutorService fixedThreadPool = Executors.newFixedThreadPool(100);
+    private ExecutorService fixedThreadPool = new ThreadPoolExecutor(POOL_SIZE,Integer.MAX_VALUE,5, TimeUnit.SECONDS,new LinkedBlockingQueue<>());
+
+    private transient boolean isStart;
+
 
     public LibWebInfoProcessor(BlockingQueue<String> urlQueue, List<LibWebInfo> libWebInfos) {
         this.urlQueue = urlQueue;
@@ -44,11 +44,13 @@ public class LibWebInfoProcessor implements PageProcessor<LibWebInfo> {
 
     @Override
     public LibWebInfo process(String url) throws IOException {
+        isStart = true;
 
 //        log.info("get-url:" + Const.LIB_URL + url);
 
         LibWebInfo libWebInfo = new LibWebInfo();
-        Document doc = Jsoup.connect(Const.LIB_URL + url).userAgent("Mozilla").timeout(5 * 1000).get();
+        Document doc = JsoupUtils.doGet(Const.LIB_URL + url);
+        log.info(doc.title());
 //            libWebInfo.setUrl(libUrl.substring(libUrl.lastIndexOf("/") + 1));
         libWebInfo.setNo(doc.title().trim().split(" ")[0]);
         libWebInfo.setUrl(Const.LIB_URL + url);
@@ -113,11 +115,11 @@ public class LibWebInfoProcessor implements PageProcessor<LibWebInfo> {
                             LibWebInfo libWebInfo = this.process(take);
                             libWebInfos.add(libWebInfo);
                         } catch (IOException e) {
-//                            log.error(Const.LIB_URL+finalTake, e);
+                            log.error(Const.LIB_URL+take);
                             urlQueue.put(take);
                         }
                     } catch (InterruptedException e) {
-                        log.error(e.toString(), e);
+                        log.error(e.toString());
                     }
                 });
             }
@@ -125,7 +127,11 @@ public class LibWebInfoProcessor implements PageProcessor<LibWebInfo> {
     }
 
     public boolean isFinished() {
+
         ThreadPoolExecutor pool = (ThreadPoolExecutor) this.fixedThreadPool;
-        return pool.getQueue().size() == 0 && pool.getActiveCount() == 0;
+        System.out.println(pool.getPoolSize());
+        System.out.println(pool.getActiveCount());
+        System.out.println(pool.getQueue().size());
+        return pool.getQueue().size() == 0 && pool.getActiveCount() == 0 && isStart;
     }
 }

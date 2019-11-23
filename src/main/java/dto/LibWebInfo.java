@@ -28,7 +28,7 @@ public class LibWebInfo implements Serializable {
     private String imageUrl;
 
     public String getRated(){
-        return StringUtils.isNotBlank(rated)?rated:"0";
+        return StringUtils.isNotBlank(rated) && !rated.startsWith("1")?rated:"1";
     }
 
 

@@ -5,6 +5,7 @@ import com.google.inject.Injector;
 import config.BindConfig;
 import dto.LibWebInfo;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import pipeline.LibInfoMarkdownPipeline;
 import pipeline.LibInfoPipeline;
 import processor.LibWebInfoProcessor;
@@ -13,6 +14,10 @@ import util.Const;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.time.LocalTime;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -28,20 +33,24 @@ public class LibMain {
     @Inject
     LibInfoMarkdownPipeline libInfoMarkdownPipeline;
 
+    private static final String actor = "";
+
     public static void main(String[] args) throws Exception {
         log.info("===Start===");
 
-        String indexUrl = "".replace(Const.LIB_URL,"");
-        Predicate<LibWebInfo> predicate = libWebInfo -> !libWebInfo.getTitle().contains("");
+        String indexUrl = "".replace(Const.LIB_URL, "");
+        Predicate<LibWebInfo> predicate = libWebInfo ->
+                !libWebInfo.getTitle().contains(actor) ||
+                        Double.parseDouble(libWebInfo.getRated()) < 8;
 
         Injector injector = Guice.createInjector(new BindConfig());
         LibMain instance = injector.getInstance(LibMain.class);
-        instance.run(indexUrl,predicate);
+        instance.run(indexUrl, predicate);
 
         log.info("===End===");
     }
 
-    private void run(String url,Predicate<LibWebInfo> predicate) throws InterruptedException {
+    private void run(String url, Predicate<LibWebInfo> predicate) throws InterruptedException {
         BlockingQueue<String> urlListQueue = new ArrayBlockingQueue<>(1024);
         BlockingQueue<String> urlQueue = new ArrayBlockingQueue<>(1024);
         // 爬虫起点
@@ -61,11 +70,21 @@ public class LibMain {
 
         while (true) {
             // 让子弹飞一会
-            Thread.sleep(10_000L);
+            Thread.sleep(1_000L);
+//            System.out.println(urlListQueue.size());
+//            System.out.println(urlQueue.size());
             // 任务已完成
-            if (urlListQueue.isEmpty() && urlQueue.isEmpty() && libWebInfoProcessor.isFinished()) {
+            if (urlListQueue.isEmpty() & urlQueue.isEmpty() & libWebInfoProcessor.isFinished()) {
 
-                libInfoMarkdownPipeline.process(libWebInfoResult,predicate);
+                System.out.println(libWebInfoResult);
+                String md = libInfoMarkdownPipeline.process(libWebInfoResult, predicate);
+                try {
+                    Files.write(new File(StringUtils.isNotBlank(actor) ? actor : "lib.md").toPath(), md.getBytes());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+
 //                    libWebInfoResult.forEach(e -> log.info(e.getNo()));
                 // 将数据存入数据库中
 //                libInfoPipeline.save(libWebInfoResult);
