@@ -11,6 +11,9 @@ public class Const {
     // 网站英文名称
     public static final String LIB_NAME = PropertyUtil.getProperty("LIB_NAME");
 
+    public static final String INDEX_URL = PropertyUtil.getProperty("INDEX_URL");
+    public static final String ACTOR = PropertyUtil.getProperty("ACTOR");
+
     private Const() {
     }
 }

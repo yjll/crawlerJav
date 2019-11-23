@@ -46,11 +46,8 @@ public class LibWebInfoProcessor implements PageProcessor<LibWebInfo> {
     public LibWebInfo process(String url) throws IOException {
         isStart = true;
 
-//        log.info("get-url:" + Const.LIB_URL + url);
-
         LibWebInfo libWebInfo = new LibWebInfo();
         Document doc = JsoupUtils.doGet(Const.LIB_URL + url);
-        log.info(doc.title());
 //            libWebInfo.setUrl(libUrl.substring(libUrl.lastIndexOf("/") + 1));
         libWebInfo.setNo(doc.title().trim().split(" ")[0]);
         libWebInfo.setUrl(Const.LIB_URL + url);
@@ -129,9 +126,8 @@ public class LibWebInfoProcessor implements PageProcessor<LibWebInfo> {
     public boolean isFinished() {
 
         ThreadPoolExecutor pool = (ThreadPoolExecutor) this.fixedThreadPool;
-        System.out.println(pool.getPoolSize());
-        System.out.println(pool.getActiveCount());
-        System.out.println(pool.getQueue().size());
+        log.info("正在爬取数量:{}",pool.getActiveCount());
+        log.info("等待爬取数量{}",pool.getQueue().size());
         return pool.getQueue().size() == 0 && pool.getActiveCount() == 0 && isStart;
     }
 }
