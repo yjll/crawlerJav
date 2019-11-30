@@ -77,7 +77,7 @@ public class LibWebUrlProcessor implements PageProcessor<Collection<String>> {
                     try {
                         process = this.process(listUrl);
                     } catch (IOException e) {
-//                        log.error(Const.LIB_URL + listUrl, e);
+                        log.error(Const.LIB_URL + listUrl, e);
                         urlListQueue.put(listUrl);
                     }
                     if (Objects.nonNull(process)) {

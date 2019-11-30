@@ -93,6 +93,12 @@
             <version>4.2.0</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.jooq</groupId>
+            <artifactId>jool-java-8</artifactId>
+            <version>0.9.13</version>
+        </dependency>
+
 
     </dependencies>
 

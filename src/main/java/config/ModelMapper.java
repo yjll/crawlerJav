@@ -3,6 +3,7 @@ package config;
 import dto.LibWebInfo;
 import model.VideoInfo;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 /**
@@ -13,6 +14,7 @@ import org.mapstruct.factory.Mappers;
 @Mapper()
 public interface ModelMapper {
 
+    @Mapping(target = "image",source = "imageUrl")
     VideoInfo libWebInfoToVideoInfo(LibWebInfo libWebInfo);
 
     LibWebInfo videoInfoToLibWebInfo(VideoInfo videoInfo);

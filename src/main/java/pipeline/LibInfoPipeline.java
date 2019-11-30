@@ -78,7 +78,6 @@ public class LibInfoPipeline {
             }
         } else {
             VideoInfo videoInfo = modelMapper.libWebInfoToVideoInfo(libWebInfo);
-            videoInfo.setSystemTime(dbVideo.getSystemTime());
             videoInfoDao.updateByPrimaryKeySelective(videoInfo);
         }
     }

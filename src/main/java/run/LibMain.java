@@ -65,9 +65,7 @@ public class LibMain {
 
         while (true) {
             // 让子弹飞一会
-            Thread.sleep(1_000L);
-            System.out.println(urlListQueue.size());
-            System.out.println(urlQueue.size());
+            Thread.sleep(10_000L);
             // 任务已完成
             if (urlListQueue.isEmpty() & urlQueue.isEmpty() & libWebInfoProcessor.isFinished()) {
 
@@ -77,11 +75,8 @@ public class LibMain {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-
-
-//                    libWebInfoResult.forEach(e -> log.info(e.getNo()));
                 // 将数据存入数据库中
-//                libInfoPipeline.save(libWebInfoResult);
+                libInfoPipeline.save(libWebInfoResult);
 
                 break;
             }
