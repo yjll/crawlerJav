@@ -1,6 +1,6 @@
 package pipeline;
 
-import config.ModelMapper;
+import config.ModelMapstruct;
 import dao.VideoActorMapper;
 import dao.VideoCategoryMapper;
 import dao.VideoInfoMapper;
@@ -9,58 +9,42 @@ import lombok.extern.slf4j.Slf4j;
 import model.VideoActor;
 import model.VideoCategory;
 import model.VideoInfo;
-import org.apache.ibatis.session.SqlSession;
-import util.SessionFactory;
+import org.mybatis.guice.transactional.Transactional;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
 
 @Singleton
 @Slf4j
 public class LibInfoPipeline {
 
     @Inject
-    private ModelMapper modelMapper;
+    private ModelMapstruct modelMapstruct;
 
-    SqlSession sqlSession = SessionFactory.newSqlSession();
-
-    private VideoInfoMapper videoInfoDao = sqlSession.getMapper(VideoInfoMapper.class);
-
-    private VideoCategoryMapper videoCategoryDao = sqlSession.getMapper(VideoCategoryMapper.class);
-
-    private VideoActorMapper videoActorDao = sqlSession.getMapper(VideoActorMapper.class);
+    @Inject
+    private VideoInfoMapper videoInfoDao;
+    @Inject
+    private VideoCategoryMapper videoCategoryDao;
+    @Inject
+    private VideoActorMapper videoActorDao;
 
 
     public void save(Collection<LibWebInfo> libWebInfoSet){
 
-        // 取全部影片信息
-        List<VideoInfo> allVideo = videoInfoDao.findAll();
-        Map<String, VideoInfo> videoInfoMap = allVideo.stream().collect(Collectors.toMap(VideoInfo::getNo, Function.identity()));
-
-
-        for (LibWebInfo libWebInfo : libWebInfoSet) {
-            try {
-                saveVideoInfo(videoInfoMap, libWebInfo);
-
-                sqlSession.commit();
-            } catch (Exception e) {
-                sqlSession.rollback();
-                log.error(e.toString(), e);
-            }
-        }
-
+        libWebInfoSet.forEach(this::saveVideoInfo);
         log.info("数据更新成功...");
     }
 
-    private void saveVideoInfo(Map<String, VideoInfo> videoInfoMap, LibWebInfo libWebInfo) {
+    @Transactional
+    public void saveVideoInfo(LibWebInfo libWebInfo) {
         // 根据no判断在否存在
-        VideoInfo dbVideo = videoInfoMap.get(libWebInfo.getNo());
+        VideoInfo dbVideo = videoInfoDao.selectByPrimaryKey(libWebInfo.getNo());
 
         if (Objects.isNull(dbVideo)) {
-            VideoInfo videoInfo = modelMapper.libWebInfoToVideoInfo(libWebInfo);
+            VideoInfo videoInfo = modelMapstruct.libWebInfoToVideoInfo(libWebInfo);
             videoInfoDao.insertSelective(videoInfo);
 
             for (String actor : libWebInfo.getActorList()) {
@@ -77,7 +61,7 @@ public class LibInfoPipeline {
                 videoCategoryDao.insertSelective(videoCategory);
             }
         } else {
-            VideoInfo videoInfo = modelMapper.libWebInfoToVideoInfo(libWebInfo);
+            VideoInfo videoInfo = modelMapstruct.libWebInfoToVideoInfo(libWebInfo);
             videoInfoDao.updateByPrimaryKeySelective(videoInfo);
         }
     }
@@ -90,7 +74,7 @@ public class LibInfoPipeline {
     public LibWebInfo getLibWebInfo(String no){
 
         VideoInfo videoInfo = videoInfoDao.selectByPrimaryKey(no);
-        LibWebInfo libWebInfo = modelMapper.videoInfoToLibWebInfo(videoInfo);
+        LibWebInfo libWebInfo = modelMapstruct.videoInfoToLibWebInfo(videoInfo);
         List<String> videoCategoryList = videoCategoryDao.findVideoCategory(no);
         List<String> videoActorList = videoActorDao.findVideoActor(no);
         libWebInfo.setActorList(videoActorList);

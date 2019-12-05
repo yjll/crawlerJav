@@ -2,18 +2,24 @@ package run;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Module;
+import com.google.inject.name.Names;
 import config.BindConfig;
+import config.MybatisConfig;
 import dto.LibWebInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.mybatis.guice.datasource.helper.JdbcHelper;
 import pipeline.LibInfoMarkdownPipeline;
 import pipeline.LibInfoPipeline;
 import processor.LibWebInfoProcessor;
 import processor.LibWebUrlProcessor;
 import util.Const;
+import util.PropertyUtil;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.xml.bind.Binder;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -35,10 +41,11 @@ public class LibMain {
     public static void main(String[] args) throws Exception {
         log.info("===Start===");
 
+        Injector injector = Guice.createInjector(new BindConfig(),
+                new MybatisConfig());
+
         String indexUrl = Const.INDEX_URL.replace(Const.LIB_URL, "");
 
-
-        Injector injector = Guice.createInjector(new BindConfig());
         LibMain instance = injector.getInstance(LibMain.class);
         instance.run(indexUrl);
 

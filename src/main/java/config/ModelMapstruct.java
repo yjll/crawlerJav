@@ -12,7 +12,7 @@ import org.mapstruct.factory.Mappers;
  * @description:
  */
 @Mapper()
-public interface ModelMapper {
+public interface ModelMapstruct {
 
     @Mapping(target = "image",source = "imageUrl")
     VideoInfo libWebInfoToVideoInfo(LibWebInfo libWebInfo);

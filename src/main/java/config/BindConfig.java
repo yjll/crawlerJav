@@ -7,6 +7,6 @@ public class BindConfig extends AbstractModule{
 
     @Override
     protected void configure() {
-        bind(ModelMapper.class).toInstance(Mappers.getMapper(ModelMapper.class));
+        bind(ModelMapstruct.class).toInstance(Mappers.getMapper(ModelMapstruct.class));
     }
 }
